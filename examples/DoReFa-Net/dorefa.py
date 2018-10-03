@@ -41,6 +41,7 @@ def get_dorefa(bitW, bitA, bitG):
     def fa(x):
         if bitA == 32:
             return x
+
         return quantize(x, bitA)
 
     def fg(x):
@@ -65,6 +66,33 @@ def get_dorefa(bitW, bitA, bitG):
 
         return _identity(x)
     return fw, fa, fg
+
+@graph_memoized
+def get_hwgq(bitA):
+
+    def quantize(x, k):
+        # in order of 
+        assert k in [2,3,4,5], 'Does not support %d bits' % k
+        code_book={
+        '2':[0.538, 0, 0.538*(2**2-1)],
+        '3':[0.3218, 0, 0.3218*(2**3-1)],
+        '4':[0.1813, 0, 0.1813*(2**4-1)],
+        '5':[0.1029, 0, 0.1029*(2**5-1)]
+        }
+        delta, minv, maxv = code_book[str(k)]
+        @tf.custom_gradient
+        def _quantize(x):
+            return tf.clip_by_value(tf.floor(x/delta + 0.5)*delta,0,maxv), lambda dy: dy*float((x>minv)*(x<maxv))
+
+        return _quantize(x)
+
+    def fa(x):
+        if bitA == 32:
+            return x
+
+        return quantize(x, bitA)
+    return fa
+
 
 
 def ternarize(x, thresh=0.05):
