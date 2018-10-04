@@ -4,6 +4,7 @@
 
 import tensorflow as tf
 from tensorpack.utils.argtools import graph_memoized
+from numpy import tanh
 
 
 @graph_memoized
@@ -74,15 +75,16 @@ def get_hwgq(bitA):
         # in order of 
         assert k in [2,3,4,5], 'Does not support %d bits' % k
         code_book={
-        '2':[0.538, 0, 0.538*(2**2-1)],
-        '3':[0.3218, 0, 0.3218*(2**3-1)],
-        '4':[0.1813, 0, 0.1813*(2**4-1)],
-        '5':[0.1029, 0, 0.1029*(2**5-1)]
+        '2':[0.5380, 0., 0.5380*(2**2-1)],
+        '3':[0.3218, 0., 0.3218*(2**3-1)],
+        '4':[0.1813, 0., 0.1813*(2**4-1)],
+        '5':[0.1029, 0., 0.1029*(2**5-1)]
         }
         delta, minv, maxv = code_book[str(k)]
+        #print(delta,minv,maxv)
         @tf.custom_gradient
         def _quantize(x):
-            return tf.clip_by_value(tf.floor(x/delta + 0.5)*delta,0,maxv), lambda dy: dy*float((x>minv)*(x<maxv))
+            return tf.to_float(x>0.)*(tf.clip_by_value((tf.floor(x/delta + 0.5)+tf.to_float(x<0.5*delta))*delta, minv, maxv)), lambda dy: dy*tf.to_float(x>minv)*tf.to_float(x<maxv)
 
         return _quantize(x)
 
@@ -91,6 +93,56 @@ def get_hwgq(bitA):
             return x
 
         return quantize(x, bitA)
+    return fa
+
+
+
+
+
+@graph_memoized
+def get_warmbin(bitA):
+
+    def scale_tanh(x, x_scale, y_scale):
+        # scale tanh alone x-axis and y-axis
+        return (y_scale*tf.tanh(x_scale*x))
+
+    def move_scaled_tanh(x, x_scale, y_scale, x_range, x_move, y_move):
+        # move the scaled tanh along x-axis and y-axis
+        return (scale_tanh(x+x_move, x_scale, y_scale )+y_move)* \
+        tf.to_float((x+x_move)>=-0.5*x_range) *\
+        tf.to_float((x+x_move)<0.5*x_range)
+
+    def tanh_appro(x, x_scale, y_scale, k, delta):
+        y=0
+        for i in range(2**k):
+            y += move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (i-0.5)*delta)
+        return y 
+
+
+    def quantize(x, k, x_scale):
+        # in order of 
+        assert k in [2,3,4,5], 'Does not support %d bits' % k
+        code_book={
+        '2':[0.2662, 0., 0.2662*(2**2-1)],
+        '3':[0.1139, 0., 0.1139*(2**3-1)],
+        '4':[0.1813, 0., 0.1813*(2**4-1)],
+        '5':[0.1029, 0., 0.1029*(2**5-1)]
+        }
+        delta, minv, maxv = code_book[str(k)]
+        y_scale = 0.5*delta/tanh(x_scale*0.5*delta)
+        #print(delta,minv,maxv)
+        @tf.custom_gradient
+        def _quantize(x):
+            return tf.to_float(x>0.)*tanh_appro(x, x_scale, y_scale, k, delta)+tf.to_float(x>maxv)*maxv\
+            , lambda dy: dy*tf.to_float(x>minv)*tf.to_float(x<maxv)
+
+        return _quantize(x)
+
+    def fa(x, x_scale):
+        if bitA == 32:
+            return x
+
+        return quantize(x, bitA, x_scale)
     return fa
 
 
