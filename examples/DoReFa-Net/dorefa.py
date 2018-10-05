@@ -129,7 +129,7 @@ def get_warmbin(bitA):
         '5':[0.1029, 0., 0.1029*(2**5-1)]
         }
         delta, minv, maxv = code_book[str(k)]
-        y_scale = 0.5*delta/tanh(x_scale*0.5*delta)
+        y_scale = 0.5*delta/tf.tanh(x_scale*0.5*delta)
         #print(delta,minv,maxv)
         @tf.custom_gradient
         def _quantize(x):
@@ -144,6 +144,27 @@ def get_warmbin(bitA):
 
         return quantize(x, bitA, x_scale)
     return fa
+
+
+class Schdule_Relax():
+    def __init__(self, start_iter, end_iter, start_value, end_value):
+        self.p = pow((end_value / start_value), 1./ (end_iter - start_iter))
+        self.start_value = start_value
+        self.start_iter = start_iter 
+        self.now_iter = start_iter -1 
+        self.now_value = 1.
+    def get_relax(self, now_iter):
+        return self.start_value * pow(self.p, (now_iter-self.start_iter))  
+    def step(self):
+        self.now_iter += 1
+        self.now_value *= self.p
+        return self.now_value 
+    def ident(self, x):
+        return x
+        
+        
+
+
 
 
 
