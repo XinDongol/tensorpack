@@ -171,7 +171,7 @@ class RelaxSetter(Callback):
     def _setup_graph(self):
         self._relax = [k for k in tf.global_variables() if k.name == 'relax_para:0'][0]
     def _trigger_step(self):
-        self._relax.load(self.relax_schduler.step())
+        self._relax.load(self.relax_schduler.ident(1000.0))
         
 def ternarize(x, thresh=0.05):
     """
