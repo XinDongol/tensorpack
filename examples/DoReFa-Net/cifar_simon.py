@@ -7,12 +7,13 @@ import argparse
 import tensorflow as tf
 
 from tensorpack import *
+from tensorpack.callbacks import *
 from tensorpack.tfutils.summary import add_moving_summary, add_param_summary
 from tensorpack.dataflow import dataset
 from tensorpack.tfutils.varreplace import remap_variables
 import os
 
-from dorefa import get_dorefa
+from dorefa import get_dorefa, get_hwgq, get_warmbin, Schdule_Relax, RelaxSetter
 
 """
 This is a tensorpack script for the SVHN results in paper:
@@ -45,14 +46,16 @@ BITG = 4
 class Model(ModelDesc):
     def inputs(self):
         return [tf.placeholder(tf.float32, [None, 32, 32, 3], 'input'),
-                tf.placeholder(tf.int32, [None], 'label'),
-                tf.placeholder(tf.float32, (), 'relax')]
+                tf.placeholder(tf.int32, [None], 'label')]
 
     def build_graph(self, image, label):
         is_training = get_current_tower_context().is_training
         print('WAG: ', BITW, BITA, BITG)
+        print('is: ', type(is_training))
         fw, fa, fg = get_dorefa(BITW, BITA, BITG)
-
+        fa = get_warmbin(BITA)
+        
+        #relax = tf.placeholder(tf.float, [], 'relax')
         # monkey-patch tf.get_variable to apply fw
         def binarize_weight(v):
             name = v.op.name
@@ -63,8 +66,8 @@ class Model(ModelDesc):
                 logger.info("Binarizing weight {}".format(v.op.name))
                 return fw(v)
 
-        def activate(x):
-            return fa(x)
+        def activate(x, relax):
+            return fa(x, relax)
 
         keep_prob = tf.constant(0.5 if is_training else 1.0)
 
@@ -77,46 +80,51 @@ class Model(ModelDesc):
             data_format = 'channels_last'
 
         image = image / 4.0     # just to make range smaller
+        relax = tf.get_variable('relax_para', initializer=1.0, trainable=False)
 
         with remap_variables(binarize_weight), \
                 argscope(BatchNorm, momentum=0.9, epsilon=1e-4, center=False, scale=False), \
                 argscope(Conv2D, use_bias=False, kernel_size=3),\
+                argscope(FullyConnected, use_bias=False),\
                 argscope([Conv2D, MaxPooling, BatchNorm], data_format=data_format):
+
+            
             logits = (LinearWrap(image)
                       .Conv2D('conv1.1', filters=64)
                       .BatchNorm('bn0')
-                      .apply(activate)
+                      .apply(activate, relax= relax)
                       # 18
                       .Conv2D('conv1.2', filters=64)
                       .apply(fg)
-                      .BatchNorm('bn1').apply(activate)
+                      .BatchNorm('bn1').apply(activate, relax= relax)
                       .MaxPooling('pool1', 3, stride=2, padding='SAME') 
 
                       .Conv2D('conv2.1', filters=128)
                       .apply(fg)
-                      .BatchNorm('bn2').apply(activate)
+                      .BatchNorm('bn2').apply(activate, relax= relax)
                       # 9
                       .Conv2D('conv2.2', filters=128)
                       .apply(fg)
-                      .BatchNorm('bn3').apply(activate)
+                      .BatchNorm('bn3').apply(activate, relax= relax)
                       .MaxPooling('pool1', 3, stride=2, padding='SAME') 
                       # 7
 
                       .Conv2D('conv3.1' , filters=128, padding='VALID')
                       .apply(fg)
-                      .BatchNorm('bn4').apply(activate)
+                      .BatchNorm('bn4').apply(activate, relax= relax)
 
                       .Conv2D('conv3.2' , filters=128, padding='VALID')
                       .apply(fg)
-                      .BatchNorm('bn5').apply(activate)
+                      .BatchNorm('bn5').apply(activate, relax= relax)
                       # 5
                       .FullyConnected('fc0', 1024 + 512)
                       .apply(fg)
-                      .BatchNorm('bn6').apply(activate)
+                      .BatchNorm('bn6').apply(activate, relax= relax)
                       .tf.nn.dropout(keep_prob)
                       .FullyConnected('fc1', 512) 
                       .apply(fg)
-                      .BatchNorm('bn7').apply(cabs)
+                      .BatchNorm('bn7')
+                      .tf.nn.relu()
                       .FullyConnected('fc2', 10)())
         #tf.nn.softmax(logits, name='output')
 
@@ -133,6 +141,8 @@ class Model(ModelDesc):
         add_param_summary(('.*/W', ['histogram', 'rms']))
         total_cost = tf.add_n([cost, wd_cost], name='cost')
         add_moving_summary(cost, wd_cost, total_cost)
+        #add_param_summary(relax, ['scalar'])
+        tf.summary.scalar('relax_para', relax)
         return total_cost
 
     def optimizer(self):
@@ -141,6 +151,11 @@ class Model(ModelDesc):
         opt = tf.train.AdamOptimizer(lr)
         tf.summary.scalar('lr', lr)
         return opt
+
+
+
+
+
 
 
 def get_data(train_or_test, dir):
@@ -163,7 +178,7 @@ def get_data(train_or_test, dir):
     ds = BatchData(ds, BATCH_SIZE, remainder=not isTrain)
     if isTrain:
         ds = PrefetchData(ds, 3, 2)
-    return ds+
+    return ds
 
 
 def get_config():
@@ -173,6 +188,13 @@ def get_config():
     dataset_train = get_data('train', dir = '../../../cifar10_data/')
     dataset_test = get_data('test', dir = '../../../cifar10_data/')
 
+
+    '''
+    class AddTBinTrain(TrainingMonitor):
+        def __init__(name,value):
+
+        def _trigger_step(self):
+    '''
     return TrainConfig(
         dataflow=dataset_train,
         callbacks=[
@@ -180,11 +202,18 @@ def get_config():
             InferenceRunner(dataset_test,
                             [ScalarStats('cost'), ClassificationError('wrong_tensor')]),
             ScheduledHyperParamSetter('learning_rate',
-                                      [(1, 0.01), (82, 0.001), (123, 0.0002), (200, 0.0001)])
+                                      [(1, 0.01), (82, 0.001), (123, 0.0002), (200, 0.0001)]),
+            RelaxSetter(0, args.epoches*len(dataset_train), 1.0, 1000.0),
+            MergeAllSummaries(),
+            #MergeAllSummaries(period=1, key='relax')
         ],
+        #monitors=DEFAULT_MONITORS() + [ScalarPrinter(enable_step=True)],
         model=Model(),
-        max_epoch=300,
+        max_epoch=args.epoches,
     )
+
+
+
 
 
 if __name__ == '__main__':
@@ -195,10 +224,14 @@ if __name__ == '__main__':
     parser.add_argument('--root_dir', action='store', default='trash/', help='root dir for different experiments',
     					type=str)
     parser.add_argument('--gpu', help='the physical ids of GPUs to use')
+    parser.add_argument('--epoches', default='300', type=int)
     args = parser.parse_args()
 
     if args.gpu:
         os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     BITW, BITA, BITG = map(int, args.dorefa.split(','))
     config = get_config()
+    print('check...................')
     launch_train_with_config(config, SimpleTrainer())
+
+    

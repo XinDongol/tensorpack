@@ -5,6 +5,7 @@
 import tensorflow as tf
 from tensorpack.utils.argtools import graph_memoized
 from numpy import tanh
+from tensorpack import *
 
 
 @graph_memoized
@@ -39,7 +40,8 @@ def get_dorefa(bitW, bitA, bitG):
         x = x / tf.reduce_max(tf.abs(x)) * 0.5 + 0.5
         return 2 * quantize(x, bitW) - 1
 
-    def fa(x):
+    def fa(x, relax):
+        # relax is just for API consistance
         if bitA == 32:
             return x
 
@@ -145,29 +147,32 @@ def get_warmbin(bitA):
         return quantize(x, bitA, x_scale)
     return fa
 
-
 class Schdule_Relax():
     def __init__(self, start_iter, end_iter, start_value, end_value):
         self.p = pow((end_value / start_value), 1./ (end_iter - start_iter))
         self.start_value = start_value
         self.start_iter = start_iter 
+        self.end_iter = end_iter
         self.now_iter = start_iter -1 
         self.now_value = 1.
     def get_relax(self, now_iter):
         return self.start_value * pow(self.p, (now_iter-self.start_iter))  
     def step(self):
         self.now_iter += 1
-        self.now_value *= self.p
+        if self.now_iter <= self.end_iter:
+            self.now_value *= self.p
         return self.now_value 
     def ident(self, x):
+        # for test
         return x
+class RelaxSetter(Callback):
+    def __init__(self, start_iter, end_iter, start_value, end_value):
+        self.relax_schduler = Schdule_Relax(start_iter, end_iter, start_value, end_value)
+    def _setup_graph(self):
+        self._relax = [k for k in tf.global_variables() if k.name == 'relax_para:0'][0]
+    def _trigger_step(self):
+        self._relax.load(self.relax_schduler.step())
         
-        
-
-
-
-
-
 def ternarize(x, thresh=0.05):
     """
     Implemented Trained Ternary Quantization:
