@@ -57,7 +57,7 @@ To run pretrained model:
 BITW = 1
 BITA = 2
 BITG = 6
-TOTAL_BATCH_SIZE = 512
+TOTAL_BATCH_SIZE = 256
 BATCH_SIZE = None
 
 
