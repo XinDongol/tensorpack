@@ -1,632 +1,0 @@
-nohup: ignoring input
-[32m[1006 04:19:03 @logger.py:74][0m Argv: cifar_simon.py --gpu 1 --dorefa 32,2,32 --root_dir cifar_step_1-1e3_soft
-[32m[1006 04:19:03 @cifar.py:32][0m Found cifar10 data in ../../../cifar10_data/.
-[32m[1006 04:19:04 @parallel.py:185][0m [MultiProcessPrefetchData] Will fork a dataflow more than one times. This assumes the datapoints are i.i.d.
-/usr/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: numpy.dtype size changed, may indicate binary incompatibility. Expected 96, got 88
-  return f(*args, **kwds)
-/usr/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: numpy.dtype size changed, may indicate binary incompatibility. Expected 96, got 88
-  return f(*args, **kwds)
-[32m[1006 04:19:04 @argtools.py:152][0m [5m[31mWRN[0m Install python-prctl so that processes can be cleaned with guarantee.
-[32m[1006 04:19:04 @cifar.py:32][0m Found cifar10 data in ../../../cifar10_data/.
-[32m[1006 04:19:04 @argtools.py:152][0m [5m[31mWRN[0m Install python-prctl so that processes can be cleaned with guarantee.
-check...................
-[32m[1006 04:19:05 @trainers.py:51][0m Building graph for a single training tower ...
-2018-10-06 04:19:05.344841: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
-2018-10-06 04:19:05.445733: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:897] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2018-10-06 04:19:05.446429: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1405] Found device 0 with properties: 
-name: GeForce GTX 1080 Ti major: 6 minor: 1 memoryClockRate(GHz): 1.582
-pciBusID: 0000:02:00.0
-totalMemory: 10.92GiB freeMemory: 10.76GiB
-2018-10-06 04:19:05.446445: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1484] Adding visible gpu devices: 0
-2018-10-06 04:19:05.633555: I tensorflow/core/common_runtime/gpu/gpu_device.cc:965] Device interconnect StreamExecutor with strength 1 edge matrix:
-2018-10-06 04:19:05.633591: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971]      0 
-2018-10-06 04:19:05.633599: I tensorflow/core/common_runtime/gpu/gpu_device.cc:984] 0:   N 
-2018-10-06 04:19:05.633881: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1097] Created TensorFlow device (/device:GPU:0 with 10403 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:02:00.0, compute capability: 6.1)
-WAG:  32 2 32
-is:  <class 'bool'>
-[32m[1006 04:19:05 @registry.py:121][0m conv1.1 input: [None, 3, 32, 32]
-[32m[1006 04:19:05 @cifar_simon.py:66][0m Binarizing weight conv1.1/W
-[32m[1006 04:19:05 @registry.py:129][0m conv1.1 output: [None, 64, 32, 32]
-[32m[1006 04:19:05 @registry.py:121][0m conv1.2 input: [None, 64, 32, 32]
-[32m[1006 04:19:05 @cifar_simon.py:66][0m Binarizing weight conv1.2/W
-[32m[1006 04:19:05 @registry.py:129][0m conv1.2 output: [None, 64, 32, 32]
-[32m[1006 04:19:05 @registry.py:121][0m pool1 input: [None, 64, 32, 32]
-[32m[1006 04:19:05 @registry.py:129][0m pool1 output: [None, 64, 16, 16]
-[32m[1006 04:19:05 @registry.py:121][0m conv2.1 input: [None, 64, 16, 16]
-[32m[1006 04:19:05 @cifar_simon.py:66][0m Binarizing weight conv2.1/W
-[32m[1006 04:19:05 @registry.py:129][0m conv2.1 output: [None, 128, 16, 16]
-[32m[1006 04:19:05 @registry.py:121][0m conv2.2 input: [None, 128, 16, 16]
-[32m[1006 04:19:05 @cifar_simon.py:66][0m Binarizing weight conv2.2/W
-[32m[1006 04:19:05 @registry.py:129][0m conv2.2 output: [None, 128, 16, 16]
-[32m[1006 04:19:05 @registry.py:121][0m conv3.1 input: [None, 128, 8, 8]
-[32m[1006 04:19:05 @cifar_simon.py:66][0m Binarizing weight conv3.1/W
-[32m[1006 04:19:05 @registry.py:129][0m conv3.1 output: [None, 128, 6, 6]
-[32m[1006 04:19:06 @registry.py:121][0m conv3.2 input: [None, 128, 6, 6]
-[32m[1006 04:19:06 @cifar_simon.py:66][0m Binarizing weight conv3.2/W
-[32m[1006 04:19:06 @registry.py:129][0m conv3.2 output: [None, 128, 4, 4]
-[32m[1006 04:19:06 @registry.py:121][0m fc0 input: [None, 128, 4, 4]
-[32m[1006 04:19:06 @cifar_simon.py:66][0m Binarizing weight fc0/W
-[32m[1006 04:19:06 @registry.py:129][0m fc0 output: [None, 1536]
-[32m[1006 04:19:06 @registry.py:121][0m fc1 input: [None, 1536]
-[32m[1006 04:19:06 @cifar_simon.py:66][0m Binarizing weight fc1/W
-[32m[1006 04:19:06 @registry.py:129][0m fc1 output: [None, 512]
-[32m[1006 04:19:06 @registry.py:121][0m fc2 input: [None, 512]
-[32m[1006 04:19:06 @registry.py:129][0m fc2 output: [None, 10]
-[32m[1006 04:19:06 @regularize.py:88][0m regularize_cost() found 3 variables to regularize.
-[32m[1006 04:19:06 @regularize.py:19][0m The following tensors will be regularized: fc0/W:0, fc1/W:0, fc2/W:0
-[32m[1006 04:19:06 @model_utils.py:64][0m [36mTrainable Variables: 
-[0mname         shape                 dim
------------  ----------------  -------
-conv1.1/W:0  [3, 3, 3, 64]        1728
-conv1.2/W:0  [3, 3, 64, 64]      36864
-conv2.1/W:0  [3, 3, 64, 128]     73728
-conv2.2/W:0  [3, 3, 128, 128]   147456
-conv3.1/W:0  [3, 3, 128, 128]   147456
-conv3.2/W:0  [3, 3, 128, 128]   147456
-fc0/W:0      [2048, 1536]      3145728
-fc1/W:0      [1536, 512]        786432
-fc2/W:0      [512, 10]            5120[36m
-Total #vars=9, #params=4491968, size=17.14MB[0m
-[32m[1006 04:19:06 @base.py:187][0m Setup callbacks graph ...
-[32m[1006 04:19:06 @inference_runner.py:146][0m [InferenceRunner] Building tower 'InferenceTower' on device /gpu:0 ...
-2018-10-06 04:19:06.556919: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1484] Adding visible gpu devices: 0
-2018-10-06 04:19:06.556967: I tensorflow/core/common_runtime/gpu/gpu_device.cc:965] Device interconnect StreamExecutor with strength 1 edge matrix:
-2018-10-06 04:19:06.556974: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971]      0 
-2018-10-06 04:19:06.556979: I tensorflow/core/common_runtime/gpu/gpu_device.cc:984] 0:   N 
-2018-10-06 04:19:06.557083: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1097] Created TensorFlow device (/device:GPU:0 with 10403 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:02:00.0, compute capability: 6.1)
-WAG:  32 2 32
-is:  <class 'bool'>
-[32m[1006 04:19:06 @cifar_simon.py:66][0m Binarizing weight conv1.1/W
-[32m[1006 04:19:06 @cifar_simon.py:66][0m Binarizing weight conv1.2/W
-[32m[1006 04:19:06 @cifar_simon.py:66][0m Binarizing weight conv2.1/W
-[32m[1006 04:19:06 @cifar_simon.py:66][0m Binarizing weight conv2.2/W
-[32m[1006 04:19:06 @cifar_simon.py:66][0m Binarizing weight conv3.1/W
-[32m[1006 04:19:06 @cifar_simon.py:66][0m Binarizing weight conv3.2/W
-[32m[1006 04:19:06 @cifar_simon.py:66][0m Binarizing weight fc0/W
-[32m[1006 04:19:06 @cifar_simon.py:66][0m Binarizing weight fc1/W
-[32m[1006 04:19:06 @collection.py:164][0m These collections were modified but restored in InferenceTower: (tf.GraphKeys.SUMMARIES: 25->26)
-[32m[1006 04:19:06 @summary.py:75][0m Summarizing collection 'summaries' of size 25.
-[32m[1006 04:19:06 @summary.py:38][0m Maintain moving average summary of 4 tensors in collection MOVING_SUMMARY_OPS.
-[32m[1006 04:19:06 @summary.py:75][0m Summarizing collection 'summaries' of size 25.
-[32m[1006 04:19:06 @graph.py:91][0m Applying collection UPDATE_OPS of 16 ops.
-[32m[1006 04:19:07 @base.py:205][0m Creating the session ...
-2018-10-06 04:19:07.233809: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1484] Adding visible gpu devices: 0
-2018-10-06 04:19:07.233849: I tensorflow/core/common_runtime/gpu/gpu_device.cc:965] Device interconnect StreamExecutor with strength 1 edge matrix:
-2018-10-06 04:19:07.233857: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971]      0 
-2018-10-06 04:19:07.233862: I tensorflow/core/common_runtime/gpu/gpu_device.cc:984] 0:   N 
-2018-10-06 04:19:07.233958: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1097] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10403 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:02:00.0, compute capability: 6.1)
-[32m[1006 04:19:07 @base.py:211][0m Initializing the session ...
-[32m[1006 04:19:07 @base.py:218][0m Graph Finalized.
-[32m[1006 04:19:07 @inference_runner.py:101][0m [InferenceRunner] Will eval 79 iterations
-[32m[1006 04:19:07 @base.py:250][0m Start Epoch 1 ...
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:22<00:00,17.32it/s][32m[1006 04:19:30 @base.py:260][0m Epoch 1 (global_step 390) finished, time:22.5 seconds.
-[32m[1006 04:19:30 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-390.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,21.94it/s][32m[1006 04:19:33 @param.py:148][0m [HyperParamSetter] At global_step=390, learning_rate will change to 0.01000000
-[32m[1006 04:19:33 @monitor.py:440][0m cost: 1.5294
-[32m[1006 04:19:33 @monitor.py:440][0m cross_entropy_loss: 1.5281
-[32m[1006 04:19:33 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:19:33 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.29548
-[32m[1006 04:19:33 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.095509
-[32m[1006 04:19:33 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.092488
-[32m[1006 04:19:33 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.081468
-[32m[1006 04:19:33 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.084708
-[32m[1006 04:19:33 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.087794
-[32m[1006 04:19:33 @monitor.py:440][0m param-summary/fc0/W-rms: 0.079532
-[32m[1006 04:19:33 @monitor.py:440][0m param-summary/fc1/W-rms: 0.090465
-[32m[1006 04:19:33 @monitor.py:440][0m param-summary/fc2/W-rms: 0.041123
-[32m[1006 04:19:33 @monitor.py:440][0m regularize_cost: 0.0012856
-[32m[1006 04:19:33 @monitor.py:440][0m relax_para_1: 1.0232
-[32m[1006 04:19:33 @monitor.py:440][0m train_error: 0.55784
-[32m[1006 04:19:33 @monitor.py:440][0m validation_cost: 1.4283
-[32m[1006 04:19:33 @monitor.py:440][0m validation_error: 0.517
-[32m[1006 04:19:33 @group.py:48][0m Callbacks took 3.679 sec in total. InferenceRunner: 3.6 seconds
-[32m[1006 04:19:33 @base.py:250][0m Start Epoch 2 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:21<00:00,18.38it/s][32m[1006 04:19:55 @base.py:260][0m Epoch 2 (global_step 780) finished, time:21.2 seconds.
-[32m[1006 04:19:55 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-780.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,21.54it/s][32m[1006 04:19:58 @monitor.py:440][0m cost: 1.316
-[32m[1006 04:19:58 @monitor.py:440][0m cross_entropy_loss: 1.3139
-[32m[1006 04:19:58 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:19:58 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.33072
-[32m[1006 04:19:58 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.11892
-[32m[1006 04:19:58 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.11279
-[32m[1006 04:19:58 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.10083
-[32m[1006 04:19:58 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.10939
-[32m[1006 04:19:58 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.11368
-[32m[1006 04:19:58 @monitor.py:440][0m param-summary/fc0/W-rms: 0.1005
-[32m[1006 04:19:58 @monitor.py:440][0m param-summary/fc1/W-rms: 0.11704
-[32m[1006 04:19:58 @monitor.py:440][0m param-summary/fc2/W-rms: 0.044097
-[32m[1006 04:19:58 @monitor.py:440][0m regularize_cost: 0.0020822
-[32m[1006 04:19:58 @monitor.py:440][0m relax_para_1: 1.0471
-[32m[1006 04:19:58 @monitor.py:440][0m train_error: 0.46318
-[32m[1006 04:19:58 @monitor.py:440][0m validation_cost: 1.3555
-[32m[1006 04:19:58 @monitor.py:440][0m validation_error: 0.4732
-[32m[1006 04:19:58 @group.py:48][0m Callbacks took 3.712 sec in total. InferenceRunner: 3.67 seconds
-[32m[1006 04:19:58 @base.py:250][0m Start Epoch 3 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:21<00:00,18.36it/s][32m[1006 04:20:20 @base.py:260][0m Epoch 3 (global_step 1170) finished, time:21.2 seconds.
-[32m[1006 04:20:20 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-1170.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,21.63it/s][32m[1006 04:20:23 @monitor.py:440][0m cost: 1.15
-[32m[1006 04:20:23 @monitor.py:440][0m cross_entropy_loss: 1.1469
-[32m[1006 04:20:23 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:20:23 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.36629
-[32m[1006 04:20:23 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.14565
-[32m[1006 04:20:23 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.13647
-[32m[1006 04:20:23 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.12444
-[32m[1006 04:20:23 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.13682
-[32m[1006 04:20:23 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.14061
-[32m[1006 04:20:23 @monitor.py:440][0m param-summary/fc0/W-rms: 0.12329
-[32m[1006 04:20:23 @monitor.py:440][0m param-summary/fc1/W-rms: 0.14298
-[32m[1006 04:20:23 @monitor.py:440][0m param-summary/fc2/W-rms: 0.049786
-[32m[1006 04:20:23 @monitor.py:440][0m regularize_cost: 0.0031338
-[32m[1006 04:20:23 @monitor.py:440][0m relax_para_1: 1.0715
-[32m[1006 04:20:23 @monitor.py:440][0m train_error: 0.40274
-[32m[1006 04:20:23 @monitor.py:440][0m validation_cost: 1.174
-[32m[1006 04:20:23 @monitor.py:440][0m validation_error: 0.4168
-[32m[1006 04:20:23 @group.py:48][0m Callbacks took 3.703 sec in total. InferenceRunner: 3.65 seconds
-[32m[1006 04:20:23 @base.py:250][0m Start Epoch 4 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:21<00:00,18.35it/s][32m[1006 04:20:45 @base.py:260][0m Epoch 4 (global_step 1560) finished, time:21.3 seconds.
-[32m[1006 04:20:45 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-1560.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,21.17it/s][32m[1006 04:20:48 @monitor.py:440][0m cost: 1.0138
-[32m[1006 04:20:48 @monitor.py:440][0m cross_entropy_loss: 1.0094
-[32m[1006 04:20:48 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:20:48 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.39783
-[32m[1006 04:20:48 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.17107
-[32m[1006 04:20:48 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.16131
-[32m[1006 04:20:48 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.14899
-[32m[1006 04:20:48 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.16467
-[32m[1006 04:20:48 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.16799
-[32m[1006 04:20:48 @monitor.py:440][0m param-summary/fc0/W-rms: 0.14607
-[32m[1006 04:20:48 @monitor.py:440][0m param-summary/fc1/W-rms: 0.16692
-[32m[1006 04:20:48 @monitor.py:440][0m param-summary/fc2/W-rms: 0.055188
-[32m[1006 04:20:48 @monitor.py:440][0m regularize_cost: 0.0043886
-[32m[1006 04:20:48 @monitor.py:440][0m relax_para_1: 1.0964
-[32m[1006 04:20:48 @monitor.py:440][0m train_error: 0.35658
-[32m[1006 04:20:48 @monitor.py:440][0m validation_cost: 1.028
-[32m[1006 04:20:48 @monitor.py:440][0m validation_error: 0.3565
-[32m[1006 04:20:48 @group.py:48][0m Callbacks took 3.781 sec in total. InferenceRunner: 3.73 seconds
-[32m[1006 04:20:48 @base.py:250][0m Start Epoch 5 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:21<00:00,18.35it/s][32m[1006 04:21:10 @base.py:260][0m Epoch 5 (global_step 1950) finished, time:21.3 seconds.
-[32m[1006 04:21:10 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-1950.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,21.20it/s][32m[1006 04:21:13 @monitor.py:440][0m cost: 0.9388
-[32m[1006 04:21:13 @monitor.py:440][0m cross_entropy_loss: 0.93296
-[32m[1006 04:21:13 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:21:13 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.4279
-[32m[1006 04:21:13 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.19565
-[32m[1006 04:21:13 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.18691
-[32m[1006 04:21:13 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.17472
-[32m[1006 04:21:13 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.1942
-[32m[1006 04:21:13 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.1962
-[32m[1006 04:21:13 @monitor.py:440][0m param-summary/fc0/W-rms: 0.16858
-[32m[1006 04:21:13 @monitor.py:440][0m param-summary/fc1/W-rms: 0.19122
-[32m[1006 04:21:13 @monitor.py:440][0m param-summary/fc2/W-rms: 0.060238
-[32m[1006 04:21:13 @monitor.py:440][0m regularize_cost: 0.0058377
-[32m[1006 04:21:13 @monitor.py:440][0m relax_para_1: 1.122
-[32m[1006 04:21:13 @monitor.py:440][0m train_error: 0.3183
-[32m[1006 04:21:13 @monitor.py:440][0m validation_cost: 1.1925
-[32m[1006 04:21:13 @monitor.py:440][0m validation_error: 0.409
-[32m[1006 04:21:13 @group.py:48][0m Callbacks took 3.776 sec in total. InferenceRunner: 3.73 seconds
-[32m[1006 04:21:13 @base.py:250][0m Start Epoch 6 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:21<00:00,18.49it/s][32m[1006 04:21:34 @base.py:260][0m Epoch 6 (global_step 2340) finished, time:21.1 seconds.
-[32m[1006 04:21:34 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-2340.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,21.56it/s][32m[1006 04:21:38 @monitor.py:440][0m cost: 0.87627
-[32m[1006 04:21:38 @monitor.py:440][0m cross_entropy_loss: 0.86878
-[32m[1006 04:21:38 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:21:38 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.45747
-[32m[1006 04:21:38 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.22058
-[32m[1006 04:21:38 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.21285
-[32m[1006 04:21:38 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.20058
-[32m[1006 04:21:38 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.22483
-[32m[1006 04:21:38 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.22532
-[32m[1006 04:21:38 @monitor.py:440][0m param-summary/fc0/W-rms: 0.19154
-[32m[1006 04:21:38 @monitor.py:440][0m param-summary/fc1/W-rms: 0.21409
-[32m[1006 04:21:38 @monitor.py:440][0m param-summary/fc2/W-rms: 0.064654
-[32m[1006 04:21:38 @monitor.py:440][0m regularize_cost: 0.0074916
-[32m[1006 04:21:38 @monitor.py:440][0m relax_para_1: 1.1481
-[32m[1006 04:21:38 @monitor.py:440][0m train_error: 0.29693
-[32m[1006 04:21:38 @monitor.py:440][0m validation_cost: 1.0529
-[32m[1006 04:21:38 @monitor.py:440][0m validation_error: 0.3459
-[32m[1006 04:21:38 @group.py:48][0m Callbacks took 3.713 sec in total. InferenceRunner: 3.67 seconds
-[32m[1006 04:21:38 @base.py:250][0m Start Epoch 7 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.75it/s][32m[1006 04:21:59 @base.py:260][0m Epoch 7 (global_step 2730) finished, time:20.8 seconds.
-[32m[1006 04:21:59 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-2730.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,22.74it/s][32m[1006 04:22:02 @monitor.py:440][0m cost: 0.84465
-[32m[1006 04:22:02 @monitor.py:440][0m cross_entropy_loss: 0.83527
-[32m[1006 04:22:02 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:22:02 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.48289
-[32m[1006 04:22:02 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.24401
-[32m[1006 04:22:02 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.23781
-[32m[1006 04:22:02 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.22674
-[32m[1006 04:22:02 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.25458
-[32m[1006 04:22:02 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.2545
-[32m[1006 04:22:02 @monitor.py:440][0m param-summary/fc0/W-rms: 0.21483
-[32m[1006 04:22:02 @monitor.py:440][0m param-summary/fc1/W-rms: 0.2374
-[32m[1006 04:22:02 @monitor.py:440][0m param-summary/fc2/W-rms: 0.068772
-[32m[1006 04:22:02 @monitor.py:440][0m regularize_cost: 0.0093789
-[32m[1006 04:22:02 @monitor.py:440][0m relax_para_1: 1.1748
-[32m[1006 04:22:02 @monitor.py:440][0m train_error: 0.28631
-[32m[1006 04:22:02 @monitor.py:440][0m validation_cost: 0.933
-[32m[1006 04:22:02 @monitor.py:440][0m validation_error: 0.3058
-[32m[1006 04:22:02 @group.py:48][0m Callbacks took 3.520 sec in total. InferenceRunner: 3.47 seconds
-[32m[1006 04:22:02 @base.py:250][0m Start Epoch 8 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.95it/s][32m[1006 04:22:23 @base.py:260][0m Epoch 8 (global_step 3120) finished, time:20.6 seconds.
-[32m[1006 04:22:23 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-3120.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,23.36it/s][32m[1006 04:22:26 @monitor.py:440][0m cost: 0.82991
-[32m[1006 04:22:26 @monitor.py:440][0m cross_entropy_loss: 0.81841
-[32m[1006 04:22:26 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:22:26 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.50919
-[32m[1006 04:22:26 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.26848
-[32m[1006 04:22:26 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.26346
-[32m[1006 04:22:26 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.25297
-[32m[1006 04:22:26 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.2842
-[32m[1006 04:22:26 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.28383
-[32m[1006 04:22:26 @monitor.py:440][0m param-summary/fc0/W-rms: 0.23808
-[32m[1006 04:22:26 @monitor.py:440][0m param-summary/fc1/W-rms: 0.2608
-[32m[1006 04:22:26 @monitor.py:440][0m param-summary/fc2/W-rms: 0.073053
-[32m[1006 04:22:26 @monitor.py:440][0m regularize_cost: 0.011495
-[32m[1006 04:22:26 @monitor.py:440][0m relax_para_1: 1.2022
-[32m[1006 04:22:26 @monitor.py:440][0m train_error: 0.27617
-[32m[1006 04:22:26 @monitor.py:440][0m validation_cost: 0.97856
-[32m[1006 04:22:26 @monitor.py:440][0m validation_error: 0.317
-[32m[1006 04:22:26 @group.py:48][0m Callbacks took 3.429 sec in total. InferenceRunner: 3.38 seconds
-[32m[1006 04:22:26 @base.py:250][0m Start Epoch 9 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,19.00it/s][32m[1006 04:22:47 @base.py:260][0m Epoch 9 (global_step 3510) finished, time:20.5 seconds.
-[32m[1006 04:22:47 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-3510.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,23.09it/s][32m[1006 04:22:50 @monitor.py:440][0m cost: 0.7674
-[32m[1006 04:22:50 @monitor.py:440][0m cross_entropy_loss: 0.7535
-[32m[1006 04:22:50 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:22:50 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.53481
-[32m[1006 04:22:50 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.2944
-[32m[1006 04:22:50 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.29016
-[32m[1006 04:22:50 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.28003
-[32m[1006 04:22:50 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.31472
-[32m[1006 04:22:50 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.31422
-[32m[1006 04:22:50 @monitor.py:440][0m param-summary/fc0/W-rms: 0.26193
-[32m[1006 04:22:50 @monitor.py:440][0m param-summary/fc1/W-rms: 0.28666
-[32m[1006 04:22:50 @monitor.py:440][0m param-summary/fc2/W-rms: 0.078989
-[32m[1006 04:22:50 @monitor.py:440][0m regularize_cost: 0.013899
-[32m[1006 04:22:50 @monitor.py:440][0m relax_para_1: 1.2302
-[32m[1006 04:22:50 @monitor.py:440][0m train_error: 0.26061
-[32m[1006 04:22:50 @monitor.py:440][0m validation_cost: 0.78927
-[32m[1006 04:22:50 @monitor.py:440][0m validation_error: 0.2544
-[32m[1006 04:22:50 @group.py:48][0m Callbacks took 3.467 sec in total. InferenceRunner: 3.42 seconds
-[32m[1006 04:22:50 @base.py:250][0m Start Epoch 10 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.74it/s][32m[1006 04:23:11 @base.py:260][0m Epoch 10 (global_step 3900) finished, time:20.8 seconds.
-[32m[1006 04:23:11 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-3900.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,22.83it/s][32m[1006 04:23:15 @monitor.py:440][0m cost: 0.80312
-[32m[1006 04:23:15 @monitor.py:440][0m cross_entropy_loss: 0.78659
-[32m[1006 04:23:15 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:23:15 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.55972
-[32m[1006 04:23:15 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.32046
-[32m[1006 04:23:15 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.31695
-[32m[1006 04:23:15 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.30739
-[32m[1006 04:23:15 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.3448
-[32m[1006 04:23:15 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.34414
-[32m[1006 04:23:15 @monitor.py:440][0m param-summary/fc0/W-rms: 0.28593
-[32m[1006 04:23:15 @monitor.py:440][0m param-summary/fc1/W-rms: 0.3112
-[32m[1006 04:23:15 @monitor.py:440][0m param-summary/fc2/W-rms: 0.081289
-[32m[1006 04:23:15 @monitor.py:440][0m regularize_cost: 0.016535
-[32m[1006 04:23:15 @monitor.py:440][0m relax_para_1: 1.2589
-[32m[1006 04:23:15 @monitor.py:440][0m train_error: 0.26859
-[32m[1006 04:23:15 @monitor.py:440][0m validation_cost: 1.1518
-[32m[1006 04:23:15 @monitor.py:440][0m validation_error: 0.3332
-[32m[1006 04:23:15 @group.py:48][0m Callbacks took 3.502 sec in total. InferenceRunner: 3.46 seconds
-[32m[1006 04:23:15 @base.py:250][0m Start Epoch 11 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,19.05it/s][32m[1006 04:23:35 @base.py:260][0m Epoch 11 (global_step 4290) finished, time:20.5 seconds.
-[32m[1006 04:23:35 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-4290.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,23.04it/s][32m[1006 04:23:39 @monitor.py:440][0m cost: 0.74929
-[32m[1006 04:23:39 @monitor.py:440][0m cross_entropy_loss: 0.72997
-[32m[1006 04:23:39 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:23:39 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.58349
-[32m[1006 04:23:39 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.34602
-[32m[1006 04:23:39 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.34424
-[32m[1006 04:23:39 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.33547
-[32m[1006 04:23:39 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.37454
-[32m[1006 04:23:39 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.37348
-[32m[1006 04:23:39 @monitor.py:440][0m param-summary/fc0/W-rms: 0.30905
-[32m[1006 04:23:39 @monitor.py:440][0m param-summary/fc1/W-rms: 0.33577
-[32m[1006 04:23:39 @monitor.py:440][0m param-summary/fc2/W-rms: 0.086543
-[32m[1006 04:23:39 @monitor.py:440][0m regularize_cost: 0.019323
-[32m[1006 04:23:39 @monitor.py:440][0m relax_para_1: 1.2882
-[32m[1006 04:23:39 @monitor.py:440][0m train_error: 0.24103
-[32m[1006 04:23:39 @monitor.py:440][0m validation_cost: 1.1572
-[32m[1006 04:23:39 @monitor.py:440][0m validation_error: 0.3543
-[32m[1006 04:23:39 @group.py:48][0m Callbacks took 3.478 sec in total. InferenceRunner: 3.43 seconds
-[32m[1006 04:23:39 @base.py:250][0m Start Epoch 12 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.77it/s][32m[1006 04:24:00 @base.py:260][0m Epoch 12 (global_step 4680) finished, time:20.8 seconds.
-[32m[1006 04:24:00 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-4680.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,21.91it/s][32m[1006 04:24:03 @monitor.py:440][0m cost: 0.70588
-[32m[1006 04:24:03 @monitor.py:440][0m cross_entropy_loss: 0.68354
-[32m[1006 04:24:03 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:24:03 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.60597
-[32m[1006 04:24:03 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.37173
-[32m[1006 04:24:03 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.37195
-[32m[1006 04:24:03 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.36328
-[32m[1006 04:24:03 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.40421
-[32m[1006 04:24:03 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.40327
-[32m[1006 04:24:03 @monitor.py:440][0m param-summary/fc0/W-rms: 0.33247
-[32m[1006 04:24:03 @monitor.py:440][0m param-summary/fc1/W-rms: 0.36054
-[32m[1006 04:24:03 @monitor.py:440][0m param-summary/fc2/W-rms: 0.093028
-[32m[1006 04:24:03 @monitor.py:440][0m regularize_cost: 0.022343
-[32m[1006 04:24:03 @monitor.py:440][0m relax_para_1: 1.3182
-[32m[1006 04:24:03 @monitor.py:440][0m train_error: 0.23608
-[32m[1006 04:24:03 @monitor.py:440][0m validation_cost: 0.99089
-[32m[1006 04:24:03 @monitor.py:440][0m validation_error: 0.2752
-[32m[1006 04:24:03 @group.py:48][0m Callbacks took 3.657 sec in total. InferenceRunner: 3.61 seconds
-[32m[1006 04:24:03 @base.py:250][0m Start Epoch 13 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.82it/s][32m[1006 04:24:24 @base.py:260][0m Epoch 13 (global_step 5070) finished, time:20.7 seconds.
-[32m[1006 04:24:24 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-5070.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,21.90it/s][32m[1006 04:24:28 @monitor.py:440][0m cost: 0.68166
-[32m[1006 04:24:28 @monitor.py:440][0m cross_entropy_loss: 0.65612
-[32m[1006 04:24:28 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:24:28 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.62897
-[32m[1006 04:24:28 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.39777
-[32m[1006 04:24:28 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.39954
-[32m[1006 04:24:28 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.39133
-[32m[1006 04:24:28 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.43406
-[32m[1006 04:24:28 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.43285
-[32m[1006 04:24:28 @monitor.py:440][0m param-summary/fc0/W-rms: 0.35563
-[32m[1006 04:24:28 @monitor.py:440][0m param-summary/fc1/W-rms: 0.38422
-[32m[1006 04:24:28 @monitor.py:440][0m param-summary/fc2/W-rms: 0.097878
-[32m[1006 04:24:28 @monitor.py:440][0m regularize_cost: 0.025545
-[32m[1006 04:24:28 @monitor.py:440][0m relax_para_1: 1.3489
-[32m[1006 04:24:28 @monitor.py:440][0m train_error: 0.21768
-[32m[1006 04:24:28 @monitor.py:440][0m validation_cost: 0.70942
-[32m[1006 04:24:28 @monitor.py:440][0m validation_error: 0.2338
-[32m[1006 04:24:28 @group.py:48][0m Callbacks took 3.661 sec in total. InferenceRunner: 3.61 seconds
-[32m[1006 04:24:28 @base.py:250][0m Start Epoch 14 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.66it/s][32m[1006 04:24:48 @base.py:260][0m Epoch 14 (global_step 5460) finished, time:20.9 seconds.
-[32m[1006 04:24:49 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-5460.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,22.18it/s][32m[1006 04:24:52 @monitor.py:440][0m cost: 0.70413
-[32m[1006 04:24:52 @monitor.py:440][0m cross_entropy_loss: 0.67519
-[32m[1006 04:24:52 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:24:52 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.65238
-[32m[1006 04:24:52 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.42516
-[32m[1006 04:24:52 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.42794
-[32m[1006 04:24:52 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.42056
-[32m[1006 04:24:52 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.46374
-[32m[1006 04:24:52 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.46286
-[32m[1006 04:24:52 @monitor.py:440][0m param-summary/fc0/W-rms: 0.37879
-[32m[1006 04:24:52 @monitor.py:440][0m param-summary/fc1/W-rms: 0.40748
-[32m[1006 04:24:52 @monitor.py:440][0m param-summary/fc2/W-rms: 0.10168
-[32m[1006 04:24:52 @monitor.py:440][0m regularize_cost: 0.02894
-[32m[1006 04:24:52 @monitor.py:440][0m relax_para_1: 1.3803
-[32m[1006 04:24:52 @monitor.py:440][0m train_error: 0.23357
-[32m[1006 04:24:52 @monitor.py:440][0m validation_cost: 0.76258
-[32m[1006 04:24:52 @monitor.py:440][0m validation_error: 0.2394
-[32m[1006 04:24:52 @group.py:48][0m Callbacks took 3.615 sec in total. InferenceRunner: 3.56 seconds
-[32m[1006 04:24:52 @base.py:250][0m Start Epoch 15 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.65it/s][32m[1006 04:25:13 @base.py:260][0m Epoch 15 (global_step 5850) finished, time:20.9 seconds.
-[32m[1006 04:25:13 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-5850.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,22.53it/s][32m[1006 04:25:17 @monitor.py:440][0m cost: 0.66781
-[32m[1006 04:25:17 @monitor.py:440][0m cross_entropy_loss: 0.63557
-[32m[1006 04:25:17 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:25:17 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.6754
-[32m[1006 04:25:17 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.45125
-[32m[1006 04:25:17 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.45571
-[32m[1006 04:25:17 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.44905
-[32m[1006 04:25:17 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.49168
-[32m[1006 04:25:17 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.49113
-[32m[1006 04:25:17 @monitor.py:440][0m param-summary/fc0/W-rms: 0.40008
-[32m[1006 04:25:17 @monitor.py:440][0m param-summary/fc1/W-rms: 0.42911
-[32m[1006 04:25:17 @monitor.py:440][0m param-summary/fc2/W-rms: 0.10581
-[32m[1006 04:25:17 @monitor.py:440][0m regularize_cost: 0.03224
-[32m[1006 04:25:17 @monitor.py:440][0m relax_para_1: 1.4125
-[32m[1006 04:25:17 @monitor.py:440][0m train_error: 0.21442
-[32m[1006 04:25:17 @monitor.py:440][0m validation_cost: 1.126
-[32m[1006 04:25:17 @monitor.py:440][0m validation_error: 0.319
-[32m[1006 04:25:17 @group.py:48][0m Callbacks took 3.561 sec in total. InferenceRunner: 3.51 seconds
-[32m[1006 04:25:17 @base.py:250][0m Start Epoch 16 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.66it/s][32m[1006 04:25:37 @base.py:260][0m Epoch 16 (global_step 6240) finished, time:20.9 seconds.
-[32m[1006 04:25:38 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-6240.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,22.43it/s][32m[1006 04:25:41 @monitor.py:440][0m cost: 0.65611
-[32m[1006 04:25:41 @monitor.py:440][0m cross_entropy_loss: 0.62043
-[32m[1006 04:25:41 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:25:41 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.69573
-[32m[1006 04:25:41 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.47723
-[32m[1006 04:25:41 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.48272
-[32m[1006 04:25:41 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.47684
-[32m[1006 04:25:41 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.51943
-[32m[1006 04:25:41 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.5196
-[32m[1006 04:25:41 @monitor.py:440][0m param-summary/fc0/W-rms: 0.42081
-[32m[1006 04:25:41 @monitor.py:440][0m param-summary/fc1/W-rms: 0.45034
-[32m[1006 04:25:41 @monitor.py:440][0m param-summary/fc2/W-rms: 0.10944
-[32m[1006 04:25:41 @monitor.py:440][0m regularize_cost: 0.035677
-[32m[1006 04:25:41 @monitor.py:440][0m relax_para_1: 1.4454
-[32m[1006 04:25:41 @monitor.py:440][0m train_error: 0.20533
-[32m[1006 04:25:41 @monitor.py:440][0m validation_cost: 0.96326
-[32m[1006 04:25:41 @monitor.py:440][0m validation_error: 0.292
-[32m[1006 04:25:41 @group.py:48][0m Callbacks took 3.572 sec in total. InferenceRunner: 3.52 seconds
-[32m[1006 04:25:41 @base.py:250][0m Start Epoch 17 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.68it/s][32m[1006 04:26:02 @base.py:260][0m Epoch 17 (global_step 6630) finished, time:20.9 seconds.
-[32m[1006 04:26:02 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-6630.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,22.49it/s][32m[1006 04:26:05 @monitor.py:440][0m cost: 0.65228
-[32m[1006 04:26:05 @monitor.py:440][0m cross_entropy_loss: 0.6132
-[32m[1006 04:26:05 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:26:05 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.71612
-[32m[1006 04:26:05 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.50194
-[32m[1006 04:26:05 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.5096
-[32m[1006 04:26:05 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.50457
-[32m[1006 04:26:05 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.5471
-[32m[1006 04:26:05 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.54788
-[32m[1006 04:26:05 @monitor.py:440][0m param-summary/fc0/W-rms: 0.44098
-[32m[1006 04:26:05 @monitor.py:440][0m param-summary/fc1/W-rms: 0.46941
-[32m[1006 04:26:05 @monitor.py:440][0m param-summary/fc2/W-rms: 0.11548
-[32m[1006 04:26:05 @monitor.py:440][0m regularize_cost: 0.039081
-[32m[1006 04:26:05 @monitor.py:440][0m relax_para_1: 1.479
-[32m[1006 04:26:05 @monitor.py:440][0m train_error: 0.20511
-[32m[1006 04:26:05 @monitor.py:440][0m validation_cost: 0.84032
-[32m[1006 04:26:05 @monitor.py:440][0m validation_error: 0.2551
-[32m[1006 04:26:05 @group.py:48][0m Callbacks took 3.564 sec in total. InferenceRunner: 3.51 seconds
-[32m[1006 04:26:05 @base.py:250][0m Start Epoch 18 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.69it/s][32m[1006 04:26:26 @base.py:260][0m Epoch 18 (global_step 7020) finished, time:20.9 seconds.
-[32m[1006 04:26:26 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-7020.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,22.43it/s][32m[1006 04:26:30 @monitor.py:440][0m cost: 0.63422
-[32m[1006 04:26:30 @monitor.py:440][0m cross_entropy_loss: 0.59157
-[32m[1006 04:26:30 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:26:30 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.73708
-[32m[1006 04:26:30 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.5295
-[32m[1006 04:26:30 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.53684
-[32m[1006 04:26:30 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.53287
-[32m[1006 04:26:30 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.57468
-[32m[1006 04:26:30 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.57628
-[32m[1006 04:26:30 @monitor.py:440][0m param-summary/fc0/W-rms: 0.46099
-[32m[1006 04:26:30 @monitor.py:440][0m param-summary/fc1/W-rms: 0.48928
-[32m[1006 04:26:30 @monitor.py:440][0m param-summary/fc2/W-rms: 0.11941
-[32m[1006 04:26:30 @monitor.py:440][0m regularize_cost: 0.042654
-[32m[1006 04:26:30 @monitor.py:440][0m relax_para_1: 1.5135
-[32m[1006 04:26:30 @monitor.py:440][0m train_error: 0.19345
-[32m[1006 04:26:30 @monitor.py:440][0m validation_cost: 0.65178
-[32m[1006 04:26:30 @monitor.py:440][0m validation_error: 0.2161
-[32m[1006 04:26:30 @group.py:48][0m Callbacks took 3.572 sec in total. InferenceRunner: 3.52 seconds
-[32m[1006 04:26:30 @base.py:250][0m Start Epoch 19 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.66it/s][32m[1006 04:26:51 @base.py:260][0m Epoch 19 (global_step 7410) finished, time:20.9 seconds.
-[32m[1006 04:26:51 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-7410.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,22.21it/s][32m[1006 04:26:54 @monitor.py:440][0m cost: 0.58023
-[32m[1006 04:26:54 @monitor.py:440][0m cross_entropy_loss: 0.53414
-[32m[1006 04:26:54 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:26:54 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.75716
-[32m[1006 04:26:54 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.55474
-[32m[1006 04:26:54 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.56334
-[32m[1006 04:26:54 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.55998
-[32m[1006 04:26:54 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.60111
-[32m[1006 04:26:54 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.60351
-[32m[1006 04:26:54 @monitor.py:440][0m param-summary/fc0/W-rms: 0.47908
-[32m[1006 04:26:54 @monitor.py:440][0m param-summary/fc1/W-rms: 0.50793
-[32m[1006 04:26:54 @monitor.py:440][0m param-summary/fc2/W-rms: 0.12489
-[32m[1006 04:26:54 @monitor.py:440][0m regularize_cost: 0.046095
-[32m[1006 04:26:54 @monitor.py:440][0m relax_para_1: 1.5487
-[32m[1006 04:26:54 @monitor.py:440][0m train_error: 0.1815
-[32m[1006 04:26:54 @monitor.py:440][0m validation_cost: 0.69421
-[32m[1006 04:26:54 @monitor.py:440][0m validation_error: 0.2102
-[32m[1006 04:26:54 @group.py:48][0m Callbacks took 3.609 sec in total. InferenceRunner: 3.56 seconds
-[32m[1006 04:26:54 @base.py:250][0m Start Epoch 20 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.68it/s][32m[1006 04:27:15 @base.py:260][0m Epoch 20 (global_step 7800) finished, time:20.9 seconds.
-[32m[1006 04:27:15 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-7800.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,22.47it/s][32m[1006 04:27:19 @monitor.py:440][0m cost: 0.62439
-[32m[1006 04:27:19 @monitor.py:440][0m cross_entropy_loss: 0.57519
-[32m[1006 04:27:19 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:27:19 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.77588
-[32m[1006 04:27:19 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.57949
-[32m[1006 04:27:19 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.58885
-[32m[1006 04:27:19 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.5865
-[32m[1006 04:27:19 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.62706
-[32m[1006 04:27:19 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.62966
-[32m[1006 04:27:19 @monitor.py:440][0m param-summary/fc0/W-rms: 0.49513
-[32m[1006 04:27:19 @monitor.py:440][0m param-summary/fc1/W-rms: 0.524
-[32m[1006 04:27:19 @monitor.py:440][0m param-summary/fc2/W-rms: 0.12703
-[32m[1006 04:27:19 @monitor.py:440][0m regularize_cost: 0.049198
-[32m[1006 04:27:19 @monitor.py:440][0m relax_para_1: 1.5848
-[32m[1006 04:27:19 @monitor.py:440][0m train_error: 0.18421
-[32m[1006 04:27:19 @monitor.py:440][0m validation_cost: 0.98303
-[32m[1006 04:27:19 @monitor.py:440][0m validation_error: 0.2359
-[32m[1006 04:27:19 @group.py:48][0m Callbacks took 3.578 sec in total. InferenceRunner: 3.52 seconds
-[32m[1006 04:27:19 @base.py:250][0m Start Epoch 21 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.70it/s][32m[1006 04:27:40 @base.py:260][0m Epoch 21 (global_step 8190) finished, time:20.9 seconds.
-[32m[1006 04:27:40 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-8190.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,22.49it/s][32m[1006 04:27:43 @monitor.py:440][0m cost: 0.60399
-[32m[1006 04:27:43 @monitor.py:440][0m cross_entropy_loss: 0.55099
-[32m[1006 04:27:43 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:27:43 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.79648
-[32m[1006 04:27:43 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.60668
-[32m[1006 04:27:43 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.61658
-[32m[1006 04:27:43 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.61496
-[32m[1006 04:27:43 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.65423
-[32m[1006 04:27:43 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.65828
-[32m[1006 04:27:43 @monitor.py:440][0m param-summary/fc0/W-rms: 0.51425
-[32m[1006 04:27:43 @monitor.py:440][0m param-summary/fc1/W-rms: 0.5432
-[32m[1006 04:27:43 @monitor.py:440][0m param-summary/fc2/W-rms: 0.1362
-[32m[1006 04:27:43 @monitor.py:440][0m regularize_cost: 0.053005
-[32m[1006 04:27:43 @monitor.py:440][0m relax_para_1: 1.6217
-[32m[1006 04:27:43 @monitor.py:440][0m train_error: 0.18572
-[32m[1006 04:27:43 @monitor.py:440][0m validation_cost: 0.74542
-[32m[1006 04:27:43 @monitor.py:440][0m validation_error: 0.2133
-[32m[1006 04:27:43 @group.py:48][0m Callbacks took 3.570 sec in total. InferenceRunner: 3.51 seconds
-[32m[1006 04:27:43 @base.py:250][0m Start Epoch 22 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.69it/s][32m[1006 04:28:04 @base.py:260][0m Epoch 22 (global_step 8580) finished, time:20.9 seconds.
-[32m[1006 04:28:04 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-8580.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,22.19it/s][32m[1006 04:28:08 @monitor.py:440][0m cost: 0.55114
-[32m[1006 04:28:08 @monitor.py:440][0m cross_entropy_loss: 0.49537
-[32m[1006 04:28:08 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:28:08 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.81457
-[32m[1006 04:28:08 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.62956
-[32m[1006 04:28:08 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.63965
-[32m[1006 04:28:08 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.63874
-[32m[1006 04:28:08 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.67736
-[32m[1006 04:28:08 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.68205
-[32m[1006 04:28:08 @monitor.py:440][0m param-summary/fc0/W-rms: 0.52708
-[32m[1006 04:28:08 @monitor.py:440][0m param-summary/fc1/W-rms: 0.55624
-[32m[1006 04:28:08 @monitor.py:440][0m param-summary/fc2/W-rms: 0.13685
-[32m[1006 04:28:08 @monitor.py:440][0m regularize_cost: 0.055766
-[32m[1006 04:28:08 @monitor.py:440][0m relax_para_1: 1.6595
-[32m[1006 04:28:08 @monitor.py:440][0m train_error: 0.16563
-[32m[1006 04:28:08 @monitor.py:440][0m validation_cost: 0.64022
-[32m[1006 04:28:08 @monitor.py:440][0m validation_error: 0.2118
-[32m[1006 04:28:08 @group.py:48][0m Callbacks took 3.613 sec in total. InferenceRunner: 3.56 seconds
-[32m[1006 04:28:08 @base.py:250][0m Start Epoch 23 ...
-
-  0%|          |0/390[00:00<?,?it/s]100%|##########|390/390[00:20<00:00,18.68it/s][32m[1006 04:28:29 @base.py:260][0m Epoch 23 (global_step 8970) finished, time:20.9 seconds.
-[32m[1006 04:28:29 @saver.py:77][0m Model saved to ../../../runs/cifar_step_1-1e3_soft/model-8970.
-
-  0%|          |0/79[00:00<?,?it/s]100%|##########|79/79[00:03<00:00,22.54it/s][32m[1006 04:28:32 @monitor.py:440][0m cost: 0.53638
-[32m[1006 04:28:32 @monitor.py:440][0m cross_entropy_loss: 0.47786
-[32m[1006 04:28:32 @monitor.py:440][0m lr: 0.01
-[32m[1006 04:28:32 @monitor.py:440][0m param-summary/conv1.1/W-rms: 0.83288
-[32m[1006 04:28:32 @monitor.py:440][0m param-summary/conv1.2/W-rms: 0.65296
-[32m[1006 04:28:32 @monitor.py:440][0m param-summary/conv2.1/W-rms: 0.66322
-[32m[1006 04:28:32 @monitor.py:440][0m param-summary/conv2.2/W-rms: 0.66302
-[32m[1006 04:28:32 @monitor.py:440][0m param-summary/conv3.1/W-rms: 0.70083
-[32m[1006 04:28:32 @monitor.py:440][0m param-summary/conv3.2/W-rms: 0.70673
-[32m[1006 04:28:32 @monitor.py:440][0m param-summary/fc0/W-rms: 0.5401
-[32m[1006 04:28:32 @monitor.py:440][0m param-summary/fc1/W-rms: 0.56942
-[32m[1006 04:28:32 @monitor.py:440][0m param-summary/fc2/W-rms: 0.14003
-[32m[1006 04:28:32 @monitor.py:440][0m regularize_cost: 0.058525
-[32m[1006 04:28:32 @monitor.py:440][0m relax_para_1: 1.6981
-[32m[1006 04:28:32 @monitor.py:440][0m train_error: 0.16982
-[32m[1006 04:28:32 @monitor.py:440][0m validation_cost: 0.61555
-[32m[1006 04:28:32 @monitor.py:440][0m validation_error: 0.1929
-[32m[1006 04:28:32 @group.py:48][0m Callbacks took 3.558 sec in total. InferenceRunner: 3.51 seconds
-[32m[1006 04:28:32 @base.py:250][0m Start Epoch 24 ...
-
-  0%|          |0/390[00:00<?,?it/s]

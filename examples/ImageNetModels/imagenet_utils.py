@@ -13,12 +13,16 @@ from tensorpack import ModelDesc
 from tensorpack.input_source import QueueInput, StagingInput
 from tensorpack.dataflow import (
     imgaug, dataset, AugmentImageComponent, PrefetchDataZMQ,
-    BatchData, MultiThreadMapData)
+    BatchData, MultiThreadMapData, RNGDataFlow, DataFromList, MultiProcessPrefetchData)
 from tensorpack.predict import PredictConfig, FeedfreePredictor
 from tensorpack.utils.stats import RatioCounter
 from tensorpack.models import regularize_cost
 from tensorpack.tfutils.summary import add_moving_summary
 from tensorpack.utils import logger
+import msgpack
+import os
+import pickle
+
 
 
 class GoogleNetResize(imgaug.ImageAugmentor):
@@ -85,14 +89,14 @@ def fbresnet_augmentor(isTrain):
         ]
     return augmentors
 
-
+'''
 def get_imagenet_dataflow(
         datadir, name, batch_size,
         augmentors, parallel=None):
-    """
-    See explanations in the tutorial:
-    http://tensorpack.readthedocs.io/en/latest/tutorial/efficient-dataflow.html
-    """
+
+    #See explanations in the tutorial:
+    #http://tensorpack.readthedocs.io/en/latest/tutorial/efficient-dataflow.html
+
     assert name in ['train', 'val', 'test']
     assert datadir is not None
     assert isinstance(augmentors, list)
@@ -118,6 +122,105 @@ def get_imagenet_dataflow(
         ds = MultiThreadMapData(ds, parallel, mapf, buffer_size=2000, strict=True)
         ds = BatchData(ds, batch_size, remainder=True)
         ds = PrefetchDataZMQ(ds, 1)
+    return ds
+
+
+'''
+class InMemoryData(RNGDataFlow):
+
+    def __init__(self, path, num_samples, shuffle=True):
+        self.path = path
+        self.num_samples = num_samples
+        self.samples = []
+        f = open(self.path, "rb")
+        print('Start loading ...')
+        for i, sample in tqdm.tqdm(enumerate(msgpack.Unpacker(f, use_list=False, raw=True))):
+            self.samples.append(sample)
+            if i == self.num_samples - 1:
+                break
+        f.close()
+        
+        self._size = num_samples
+        self.shuffle = shuffle
+
+    def __len__(self):
+        return self._size
+
+    def __iter__(self):
+        idxs = list(range(self._size))
+        if self.shuffle:
+            self.rng.shuffle(idxs)
+        for k in idxs:
+            img, label = self.samples[k]
+            img = pickle.loads(img)
+            img = cv2.imdecode(img, cv2.IMREAD_COLOR)
+            #print('Checking img: ',type(img))
+            #print('Checking img: ',img.shape)
+            #print('Checking label: ',type(label))
+            yield [img, label]
+
+
+def get_imagenet_dataflow(
+        dataset_root, name, batch_size,
+        augmentors, parallel=None):
+
+    #See explanations in the tutorial:
+    #http://tensorpack.readthedocs.io/en/latest/tutorial/efficient-dataflow.html
+
+    assert name in ['train', 'val', 'test']
+    assert isinstance(augmentors, list)
+    train_path = os.path.join(dataset_root, 'imagenet-msgpack', 'ILSVRC-train.bin')
+    val_path = os.path.join(dataset_root, 'imagenet-msgpack', 'ILSVRC-val.bin')
+    isTrain = name == 'train'
+    if parallel is None:
+        parallel = min(40, multiprocessing.cpu_count() // 2)  # assuming hyperthreading
+    if isTrain:
+        #ds = dataset.ILSVRC12(datadir, name, shuffle=True)
+        '''
+        num_samples=1281167
+        #num_samples=1281
+        samples = []
+        f = open(train_path, "rb")
+        print('Start loading ...')
+        for i, sample in tqdm.tqdm(enumerate(msgpack.Unpacker(f, use_list=False, raw=True))):
+            img, label = sample
+            img = pickle.loads(img)
+            img = cv2.imdecode(img, cv2.IMREAD_COLOR)
+            samples += [[img, label]]
+            if i == num_samples - 1:
+                break
+        f.close()
+        ds = DataFromList(samples)
+        '''
+        ds = InMemoryData(train_path, 1281167, True)
+        ds = AugmentImageComponent(ds, augmentors, copy=False)
+        if parallel < 16:
+            logger.warn("DataFlow may become the bottleneck when too few processes are used.")
+        #ds = PrefetchDataZMQ(ds, parallel)
+        ds = MultiProcessPrefetchData(ds , 100000, parallel)
+        ds = BatchData(ds, batch_size, remainder=False)
+    else:
+        '''
+        num_samples=50000
+        samples = []
+        f = open(val_path, "rb")
+        print('Start loading ...')
+        for i, sample in tqdm.tqdm(enumerate(msgpack.Unpacker(f, use_list=False, raw=True))):
+            img, label = sample
+            img = pickle.loads(img)
+            img = cv2.imdecode(img, cv2.IMREAD_COLOR)
+            samples += [[img, label]]
+            if i == num_samples - 1:
+                break
+        f.close()
+        ds = DataFromList(samples)
+        '''
+        ds = InMemoryData(val_path, 5000, False)
+        ds = AugmentImageComponent(ds, augmentors, copy=False)
+        
+        #ds = MultiThreadMapData(ds, parallel, mapf, buffer_size=2000, strict=True)
+        ds = BatchData(ds, batch_size, remainder=True)
+        ds = MultiProcessPrefetchData(ds , 10000, 1)
     return ds
 
 
@@ -267,7 +370,7 @@ if __name__ == '__main__':
     import argparse
     from tensorpack.dataflow import TestDataSpeed
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data', required=True)
+    parser.add_argument('--data', default='/home/jovyan/harvard-heavy/datasets/')
     parser.add_argument('--batch', type=int, default=32)
     parser.add_argument('--aug', choices=['train', 'val'], default='val')
     args = parser.parse_args()
