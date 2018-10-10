@@ -164,7 +164,7 @@ def get_config():
             InferenceRunner(data_test,
                             [ClassificationError('wrong-top1', 'val-error-top1'),
                              ClassificationError('wrong-top5', 'val-error-top5')]),
-            RelaxSetter(0, args.epoches*len(data_train), 1.0, 1000.0),
+            RelaxSetter(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), 1.0, 1000.0),
             MergeAllSummaries(),
         ],
         model=Model(),
@@ -205,8 +205,8 @@ if __name__ == '__main__':
     parser.add_argument('--gpu', help='the physical ids of GPUs to use')
     parser.add_argument('--load', help='load a checkpoint, or a npz (given as the pretrained model)')
     parser.add_argument('--data', help='ILSVRC dataset dir', default='/home/jovyan/harvard-heavy/datasets/')
-    parser.add_argument('--dorefa', required=True,
-                        help='number of bits for W,A,G, separated by comma. W="t" means TTQ')
+    parser.add_argument('--dorefa', 
+                        help='number of bits for W,A,G, separated by comma. W="t" means TTQ', default='32,2,32')
     parser.add_argument('--run', help='run on a list of images with the pretrained model', nargs='*')
     parser.add_argument('--eval', action='store_true')
     parser.add_argument('--root_dir', action='store', default='trash/', help='root dir for different experiments', type=str)

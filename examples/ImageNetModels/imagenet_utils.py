@@ -197,7 +197,7 @@ def get_imagenet_dataflow(
         if parallel < 16:
             logger.warn("DataFlow may become the bottleneck when too few processes are used.")
         #ds = PrefetchDataZMQ(ds, parallel)
-        ds = MultiProcessPrefetchData(ds , 100000, parallel)
+        ds = MultiProcessPrefetchData(ds , 50000, parallel)
         ds = BatchData(ds, batch_size, remainder=False)
     else:
         '''
