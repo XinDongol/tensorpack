@@ -52,9 +52,9 @@ class Model(ModelDesc):
         is_training = get_current_tower_context().is_training
         print('WAG: ', BITW, BITA, BITG)
         print('is: ', type(is_training))
-        fw, fa, fg = get_dorefa(BITW, BITA, BITG)
-        fa = get_warmbin(BITA)
-        
+        #fw, fa, fg = get_dorefa(BITW, BITA, BITG)
+        fw, fa, fg = get_warmbin(BITW, BITA, BITG)
+        relax = tf.get_variable('relax_para', initializer=1.0, trainable=False)
         #relax = tf.placeholder(tf.float, [], 'relax')
         # monkey-patch tf.get_variable to apply fw
         def binarize_weight(v):
@@ -64,10 +64,14 @@ class Model(ModelDesc):
                 return v
             else:
                 logger.info("Binarizing weight {}".format(v.op.name))
-                return fw(v)
+                return fw(v, relax)
+        def nonlin(x):
+            if BITA == 32:
+                return tf.nn.relu(x)
+            return tf.clip_by_value(x, 0.0, 1.0)
 
         def activate(x, relax):
-            return fa(x, relax)
+            return fa(nonlin(x), relax)
 
         keep_prob = tf.constant(0.5 if is_training else 1.0)
 
@@ -80,7 +84,7 @@ class Model(ModelDesc):
             data_format = 'channels_last'
 
         image = image / 4.0     # just to make range smaller
-        relax = tf.get_variable('relax_para', initializer=1.0, trainable=False)
+        
 
         with remap_variables(binarize_weight), \
                 argscope(BatchNorm, momentum=0.9, epsilon=1e-4, center=False, scale=False), \
@@ -203,7 +207,7 @@ def get_config():
                             [ScalarStats('cost'), ClassificationError('wrong_tensor')]),
             ScheduledHyperParamSetter('learning_rate',
                                       [(1, 0.01), (82, 0.001), (123, 0.0002), (200, 0.0001)]),
-            RelaxSetter(0, args.epoches*len(dataset_train), 1.0, 1000.0),
+            RelaxSetter(0, args.epoches*390, 1.0, 100.0),
             MergeAllSummaries(),
             #MergeAllSummaries(period=1, key='relax')
         ],
