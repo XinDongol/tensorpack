@@ -135,3 +135,14 @@ plt.ylim(0,1.2)
 plt.title('Forward')
 plt.legend()
 plt.savefig('./test_figs/test_forward_derefa.pdf')
+
+
+plt.figure()
+x = tf.range(0,1,0.01)
+fa = dorefa.get_dorefa.quantize
+plt.plot(sess.run(x),sess.run(fa(x,2)),label='2-bit', alpha=0.5)
+plt.plot(sess.run(x),sess.run(fa(x,3)),label='3-bit', alpha=0.5)
+plt.plot(sess.run(x),sess.run(fa(x,4)),label='4-bit', alpha=0.5)
+plt.title('Forward')
+plt.legend()
+plt.savefig('./test_figs/test_forward_derefa_quantize.pdf')

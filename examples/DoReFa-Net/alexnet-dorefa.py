@@ -164,7 +164,7 @@ def get_config():
             InferenceRunner(data_test,
                             [ClassificationError('wrong-top1', 'val-error-top1'),
                              ClassificationError('wrong-top5', 'val-error-top5')]),
-            RelaxSetter(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), 1.0, 1000.0),
+            RelaxSetter(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), 1.0, 100.0),
             MergeAllSummaries(),
         ],
         model=Model(),
