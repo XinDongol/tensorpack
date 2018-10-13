@@ -70,8 +70,9 @@ class Model(ImageNetModel):
             fw, fa, fg = get_dorefa(32, 32, 32)
             fw = ternarize
         else:
-            fw, fa, fg = get_dorefa(BITW, BITA, BITG)
-            fa = get_warmbin(BITA)
+            #fw, fa, fg = get_dorefa(BITW, BITA, BITG)
+            fw, fa, fg = get_warmbin(BITW, BITA, BITG)
+        relax = tf.get_variable('relax_para', initializer=1.0, trainable=False)
         # monkey-patch tf.get_variable to apply fw
         def new_get_variable(v):
             name = v.op.name
@@ -80,7 +81,7 @@ class Model(ImageNetModel):
                 return v
             else:
                 logger.info("Quantizing weight {}".format(v.op.name))
-                return fw(v)
+                return fw(v, relax)
 
         def nonlin(x):
             if BITA == 32:
@@ -88,9 +89,7 @@ class Model(ImageNetModel):
             return tf.clip_by_value(x, 0.0, 1.0)
 
         def activate(x,relax):
-            #return fa(nonlin(x))
-            return fa(x, relax)
-        relax = tf.get_variable('relax_para', initializer=1.0, trainable=False)
+            return fa(nonlin(x), relax)
         
         with remap_variables(new_get_variable), \
                 argscope([Conv2D, BatchNorm, MaxPooling], data_format='channels_first'), \
