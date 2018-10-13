@@ -102,7 +102,7 @@ def get_hwgq(bitA):
 
 
 @graph_memoized
-def get_warmbin(bitA):
+def get_warmbin(bitW, bitA, bitG):
     '''
     Thi is for hwgq like
     def scale_tanh(x, x_scale, y_scale):
@@ -193,30 +193,39 @@ def get_warmbin(bitA):
 
 
 class Schdule_Relax():
-    def __init__(self, start_iter, end_iter, start_value, end_value):
-        self.p = pow((end_value / start_value), 1./ (end_iter - start_iter))
+    def __init__(self, start_iter, end_iter, start_value, end_value, mode):
+        if mode == 'expo':
+            self.p = pow((end_value / start_value), 1./ (end_iter - start_iter))
+        elif mode == 'linear':
+            self.p = (end_value - start_value) / (end_iter - start_iter)
         self.start_value = start_value
         self.start_iter = start_iter 
         self.end_iter = end_iter
         self.now_iter = start_iter -1 
-        self.now_value = 1.
+        self.now_value = start_value
+        self.mode = mode
     def get_relax(self, now_iter):
-        return self.start_value * pow(self.p, (now_iter-self.start_iter))  
+        if mode == 'expo':
+            return self.start_value * pow(self.p, (now_iter-self.start_iter))  
     def step(self):
         self.now_iter += 1
         if self.now_iter <= self.end_iter:
-            self.now_value *= self.p
+            if self.mode == 'expo':
+                self.now_value *= self.p
+            elif self.mode == 'linear':
+                self.now_value += self.p
         return self.now_value 
     def ident(self, x):
         # for test
         return x
 class RelaxSetter(Callback):
-    def __init__(self, start_iter, end_iter, start_value, end_value):
-        self.relax_schduler = Schdule_Relax(start_iter, end_iter, start_value, end_value)
+    def __init__(self, start_iter, end_iter, start_value, end_value, mode='linear'):
+        assert mode in ['linear','expo']
+        self.relax_schduler = Schdule_Relax(start_iter, end_iter, start_value, end_value, mode)
     def _setup_graph(self):
         self._relax = [k for k in tf.global_variables() if k.name == 'relax_para:0'][0]
     def _trigger_step(self):
-        self._relax.load(self.relax_schduler.ident(1.))
+        self._relax.load(self.relax_schduler.step())
         
 def ternarize(x, thresh=0.05):
     """

@@ -224,7 +224,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--dorefa',
                         help='number of bits for W,A,G, separated by comma. Defaults to \'1,2,4\'',
-                        default='32,2,32')
+                        default='2,2,32')
     parser.add_argument('--root_dir', action='store', default='trash/', help='root dir for different experiments',
     					type=str)
     parser.add_argument('--gpu', help='the physical ids of GPUs to use')
