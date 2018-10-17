@@ -157,47 +157,14 @@ plt.savefig('./test_figs/test_forward_derefa_quantize.pdf')
 
 
 plt.figure()
-def quantize(x, k):
-    n = float(2 ** k - 1)
 
-    @tf.custom_gradient
-    def _quantize(x):
-        return tf.round(x * n) / n, lambda dy: dy
-
-    return _quantize(x)
-
-def scale_tanh(x, x_scale, y_scale):
-    # scale tanh alone x-axis and y-axis
-    return (y_scale*tf.tanh(x_scale*x))
-
-def move_scaled_tanh(x, x_scale, y_scale, x_range, x_move, y_move):
-    # move the scaled tanh along x-axis and y-axis
-    return (scale_tanh(x+x_move, x_scale, y_scale )+y_move)* \
-    tf.to_float((x+x_move)>=-0.5*x_range) *\
-    tf.to_float((x+x_move)<0.5*x_range)
-
-def tanh_appro(x, x_scale, y_scale, k, delta):
-    y=0
-    for i in range(1,2**k):
-        y += move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (i-0.5)*delta)
-    return y 
-
-
-def soft_quantize(x, k, x_scale):
-
-    delta = float(1./(2**k-1.))
-    y_scale = 0.5*delta/tf.tanh(x_scale*0.5*delta)
-    #print(delta,minv,maxv)
-    @tf.custom_gradient
-    def _quantize(x):
-        return tanh_appro(x, x_scale, y_scale, k, delta), lambda dy: dy
-
-    return _quantize(x)
 
 x = tf.range(0,1.1,0.01)
+_,soft_quantize,_ = dorefa.get_warmbin(32,2,15)
 fa = quantize
 plt.plot(sess.run(x),sess.run(fa(x,2)),label='2-bit-dorefa_quantize', alpha=0.5)
-plt.plot(sess.run(x),sess.run(soft_quantize(x,2,15)),label='2-bit-soft_quantize', alpha=0.5)
+plt.plot(sess.run(x),sess.run(soft_quantize(x,15)),label='2-bit-soft_quantize', alpha=0.5)
+plt.plot(sess.run(x),sess.run(soft_quantize(x,35)),label='2-bit-soft_quantize', alpha=0.5)
 plt.plot(sess.run(x),sess.run(x),label='y=x', alpha=0.5)
 plt.title('Forward')
 plt.legend()

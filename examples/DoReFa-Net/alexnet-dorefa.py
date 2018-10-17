@@ -70,8 +70,8 @@ class Model(ImageNetModel):
             fw, fa, fg = get_dorefa(32, 32, 32)
             fw = ternarize
         else:
-            #fw, fa, fg = get_dorefa(BITW, BITA, BITG)
-            fw, fa, fg = get_warmbin(BITW, BITA, BITG)
+            fw, fa, fg = get_dorefa(BITW, BITA, BITG)
+            #fw, fa, fg = get_warmbin(BITW, BITA, BITG)
         relax = tf.get_variable('relax_para', initializer=1.0, trainable=False)
         # monkey-patch tf.get_variable to apply fw
         def new_get_variable(v):

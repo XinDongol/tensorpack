@@ -23,7 +23,8 @@ def get_dorefa(bitW, bitA, bitG):
 
         return _quantize(x)
 
-    def fw(x):
+    def fw(x, relax):
+        # relax is just for API consistance
         if bitW == 32:
             return x
 
@@ -147,14 +148,15 @@ def get_warmbin(bitW, bitA, bitG):
 
     def move_scaled_tanh(x, x_scale, y_scale, x_range, x_move, y_move):
         # move the scaled tanh along x-axis and y-axis
-        return (scale_tanh(x+x_move, x_scale, y_scale )+y_move)* \
-        tf.to_float((x+x_move)>=-0.5*x_range) *\
-        tf.to_float((x+x_move)<0.5*x_range)
+        return (scale_tanh(x+x_move, x_scale, y_scale )+y_move)\
+        #* \
+        #tf.to_float((x+x_move)>=-0.5*x_range) *\
+        #tf.to_float((x+x_move)<0.5*x_range)
 
     def tanh_appro(x, x_scale, y_scale, k, delta):
         y=0
         for i in range(1,2**k):
-            y += move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (i-0.5)*delta)
+            y += move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (0.5)*delta)
         return y 
 
 
