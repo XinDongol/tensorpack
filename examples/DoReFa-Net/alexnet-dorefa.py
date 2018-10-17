@@ -70,8 +70,8 @@ class Model(ImageNetModel):
             fw, fa, fg = get_dorefa(32, 32, 32)
             fw = ternarize
         else:
-            fw, fa, fg = get_dorefa(BITW, BITA, BITG)
-            #fw, fa, fg = get_warmbin(BITW, BITA, BITG)
+            #fw, fa, fg = get_dorefa(BITW, BITA, BITG)
+            fw, fa, fg = get_warmbin(BITW, BITA, BITG)
         relax = tf.get_variable('relax_para', initializer=1.0, trainable=False)
         # monkey-patch tf.get_variable to apply fw
         def new_get_variable(v):
@@ -163,7 +163,7 @@ def get_config():
             InferenceRunner(data_test,
                             [ClassificationError('wrong-top1', 'val-error-top1'),
                              ClassificationError('wrong-top5', 'val-error-top5')]),
-            RelaxSetter(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), 1.0, 100.0),
+            RelaxSetter(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), 1.0, 100.0, 'expo'),
             MergeAllSummaries(),
         ],
         model=Model(),
