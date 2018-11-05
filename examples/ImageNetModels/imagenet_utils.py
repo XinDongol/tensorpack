@@ -173,7 +173,8 @@ def get_imagenet_dataflow(
     val_path = os.path.join(dataset_root, 'imagenet-msgpack', 'ILSVRC-val.bin')
     isTrain = name == 'train'
     if parallel is None:
-        parallel = min(40, multiprocessing.cpu_count() // 2)  # assuming hyperthreading
+        #parallel = min(40, multiprocessing.cpu_count() - 4)  # assuming hyperthreading
+        parallel = multiprocessing.cpu_count() - 2
     if isTrain:
         #ds = dataset.ILSVRC12(datadir, name, shuffle=True)
         '''

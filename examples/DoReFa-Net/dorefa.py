@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # File: dorefa.py
 # Author: Yuxin Wu
-
+from scipy.io import loadmat
 import tensorflow as tf
 from tensorpack.utils.argtools import graph_memoized
 from numpy import tanh
 from tensorpack import *
-
+from math import sqrt
 
 @graph_memoized
 def get_dorefa(bitW, bitA, bitG):
@@ -148,26 +148,88 @@ def get_warmbin(bitW, bitA, bitG):
 
     def move_scaled_tanh(x, x_scale, y_scale, x_range, x_move, y_move):
         # move the scaled tanh along x-axis and y-axis
-        return (scale_tanh(x+x_move, x_scale, y_scale )+y_move)\
+        return tf.clip_by_value(scale_tanh(x+x_move, x_scale, y_scale ),-0.5*x_range,0.5*x_range)+y_move
         #* \
         #tf.to_float((x+x_move)>=-0.5*x_range) *\
         #tf.to_float((x+x_move)<0.5*x_range)
 
     def tanh_appro(x, x_scale, y_scale, k, delta):
         y=0
+        
         for i in range(1,2**k):
             y += move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (0.5)*delta)
+        #i=1
+        #y = move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (0.5)*delta)
         return y 
 
 
     def quantize(x, k, x_scale):
 
         delta = float(1./(2**k-1.))
-        y_scale = 0.5*delta/tf.tanh(x_scale*0.5*delta)
+        y_scale = (0.5*delta)/tf.tanh(x_scale*0.5*delta)
         #print(delta,minv,maxv)
         @tf.custom_gradient
         def _quantize(x):
             return tanh_appro(x, x_scale, y_scale, k, delta), lambda dy: dy
+
+        return _quantize(x)
+
+    def fw(x, relax):
+        if bitW == 32:
+            return x
+
+        x = tf.tanh(x)
+        x = x / tf.reduce_max(tf.abs(x)) * 0.5 + 0.5
+        return 2 * quantize(x, bitW, relax) - 1
+
+    def fa(x, relax):
+        # relax is just for API consistance
+        if bitA == 32:
+            return x
+        #print(bitA)
+        return quantize(x, bitA, relax)
+
+    def fg(x):
+        if bitG == 32:
+            return x
+        else:
+            raise NameError('Don not support gradients !')
+    return fw, fa, fg
+
+
+@graph_memoized
+def get_warmbin_match(bitW, bitA, bitG):
+    '''
+    use the same function for forward and backward
+    '''
+    def scale_tanh(x, x_scale, y_scale):
+        # scale tanh alone x-axis and y-axis
+        return (y_scale*tf.tanh(x_scale*x))
+
+    def move_scaled_tanh(x, x_scale, y_scale, x_range, x_move, y_move):
+        # move the scaled tanh along x-axis and y-axis
+        return tf.clip_by_value(scale_tanh(x+x_move, x_scale, y_scale ),-0.5*x_range,0.5*x_range)+y_move
+        #* \
+        #tf.to_float((x+x_move)>=-0.5*x_range) *\
+        #tf.to_float((x+x_move)<0.5*x_range)
+
+    def tanh_appro(x, x_scale, y_scale, k, delta):
+        y=0
+        
+        for i in range(1,2**k):
+            y += move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (0.5)*delta)
+        #i=1
+        #y = move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (0.5)*delta)
+        return y 
+
+
+    def quantize(x, k, x_scale):
+
+        delta = float(1./(2**k-1.))
+        y_scale = (0.5*delta)/tf.tanh(x_scale*0.5*delta)
+        #print(delta,minv,maxv)
+        def _quantize(x):
+            return tanh_appro(x, x_scale, y_scale, k, delta)
 
         return _quantize(x)
 
@@ -194,12 +256,18 @@ def get_warmbin(bitW, bitA, bitG):
     return fw, fa, fg
 
 
+
 class Schdule_Relax():
     def __init__(self, start_iter, end_iter, start_value, end_value, mode):
         if mode == 'expo':
             self.p = pow((end_value / start_value), 1./ (end_iter - start_iter))
         elif mode == 'linear':
             self.p = (end_value - start_value) / (end_iter - start_iter)
+        elif mode == 'sqrt':
+            self.a = (end_value - start_value) / (sqrt(end_iter)-1)
+            self.b = start_value - self.a
+        elif mode == 'from_file':
+            self.mat = loadmat(start_value)['c'][0]
         self.start_value = start_value
         self.start_iter = start_iter 
         self.end_iter = end_iter
@@ -207,8 +275,10 @@ class Schdule_Relax():
         self.now_value = start_value
         self.mode = mode
     def get_relax(self, now_iter):
-        if mode == 'expo':
+        if self.mode == 'expo':
             return self.start_value * pow(self.p, (now_iter-self.start_iter))  
+        if self.mode == 'from_file':
+            return self.mat[int(self.now_iter*self.mat.shape[0]/(self.end_iter - self.start_iter + 1))]
     def step(self):
         self.now_iter += 1
         if self.now_iter <= self.end_iter:
@@ -216,13 +286,17 @@ class Schdule_Relax():
                 self.now_value *= self.p
             elif self.mode == 'linear':
                 self.now_value += self.p
+            elif self.mode == 'sqrt':
+                self.now_value = self.a * sqrt(self.now_iter) + self.b
+            elif self.mode == 'from_file':
+                self.now_value = self.get_relax(self.now_iter)
         return self.now_value 
     def ident(self, x):
         # for test
         return x
 class RelaxSetter(Callback):
     def __init__(self, start_iter, end_iter, start_value, end_value, mode='linear'):
-        assert mode in ['linear','expo']
+        assert mode in ['linear','expo', 'sqrt', 'from_file']
         self.relax_schduler = Schdule_Relax(start_iter, end_iter, start_value, end_value, mode)
     def _setup_graph(self):
         self._relax = [k for k in tf.global_variables() if k.name == 'relax_para:0'][0]
@@ -262,3 +336,65 @@ def ternarize(x, thresh=0.05):
 
     tf.summary.histogram(w.name, w)
     return w
+
+if __name__ == '__main__':
+    '''
+    setter = Schdule_Relax(start_iter=1, end_iter=200, start_value=1, end_value=100, mode='sqrt')
+    for i in range(202):
+        print(setter.step())
+    '''
+    import matplotlib
+    matplotlib.use('agg')
+    import matplotlib.pyplot as plt
+    
+    config = tf.ConfigProto(
+        device_count = {'GPU': 0}
+    )
+    sess = tf.Session(config=config)
+    
+    def scale_tanh(x, x_scale, y_scale):
+        # scale tanh alone x-axis and y-axis
+        return (y_scale*tf.tanh(x_scale*x))
+
+    def move_scaled_tanh(x, x_scale, y_scale, x_range, x_move, y_move):
+        # move the scaled tanh along x-axis and y-axis
+        return tf.clip_by_value(scale_tanh(x+x_move, x_scale, y_scale ),-0.5*x_range,0.5*x_range)+y_move
+        #* \
+        #tf.to_float((x+x_move)>=-0.5*x_range) *\
+        #tf.to_float((x+x_move)<0.5*x_range)
+
+    def tanh_appro(x, x_scale, y_scale, k, delta):
+        y=0
+        
+        for i in range(1,2**k):
+            y += move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (0.5)*delta)
+        #i=1
+        #y = move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (0.5)*delta)
+        return y 
+
+
+    def quantize(x, k, x_scale):
+
+        delta = float(1./(2**k-1.))
+        y_scale = (0.5*delta)/tf.tanh(x_scale*0.5*delta)
+        #print(delta,minv,maxv)
+        @tf.custom_gradient
+        def _quantize(x):
+            return tanh_appro(x, x_scale, y_scale, k, delta), lambda dy: dy
+
+        return _quantize(x)
+    
+    x = tf.range(0,1,0.01)
+    fa = quantize
+    bit = 2
+    plt.plot(sess.run(x),sess.run(fa(x,bit,500)),label='2-bit-500', alpha=0.5)
+    plt.plot(sess.run(x),sess.run(fa(x,bit,50)),label='2-bit-50', alpha=0.5)
+    plt.plot(sess.run(x),sess.run(fa(x,bit,5)),label='2-bit-5', alpha=0.5)
+    plt.plot(sess.run(x),sess.run(fa(x,bit,2)),label='2-bit-2', alpha=0.5)
+    plt.plot(sess.run(x),sess.run(fa(x,bit,10)),label='2-bit-10', alpha=0.5)
+    plt.plot(sess.run(x),sess.run(fa(x,bit,15)),label='2-bit-15', alpha=0.5)
+    #plt.plot(sess.run(x),sess.run(fa(x,3,500)),label='3-bit', alpha=0.5)
+    #plt.plot(sess.run(x),sess.run(fa(x,4,500)),label='4-bit', alpha=0.5)
+    plt.title('Forward')
+    plt.legend()
+    plt.savefig('./test_figs/test_warmbin.pdf')

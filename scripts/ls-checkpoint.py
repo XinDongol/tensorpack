@@ -7,11 +7,15 @@ import numpy as np
 import six
 import sys
 import pprint
+import argparse
 
 from tensorpack.tfutils.varmanip import get_checkpoint_path
 
 if __name__ == '__main__':
-    fpath = sys.argv[1]
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--fpath', help='fpath')
+    args = parser.parse_args()
+    fpath = args.fpath
 
     if fpath.endswith('.npy'):
         params = np.load(fpath, encoding='latin1').item()
@@ -20,7 +24,7 @@ if __name__ == '__main__':
         params = dict(np.load(fpath))
         dic = {k: v.shape for k, v in six.iteritems(params)}
     else:
-        path = get_checkpoint_path(sys.argv[1])
+        path = get_checkpoint_path(fpath)
         reader = tf.train.NewCheckpointReader(path)
         dic = reader.get_variable_to_shape_map()
     pprint.pprint(dic)

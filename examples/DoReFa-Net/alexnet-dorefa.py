@@ -9,6 +9,7 @@ import argparse
 import numpy as np
 import os
 import sys
+from scipy.io import loadmat
 
 
 from tensorpack import *
@@ -20,8 +21,9 @@ from tensorpack.utils.gpu import get_num_gpu
 
 from imagenet_utils import (
     get_imagenet_dataflow, fbresnet_augmentor, ImageNetModel, eval_on_ILSVRC12)
-from dorefa import get_dorefa, ternarize, get_hwgq, get_warmbin, Schdule_Relax, RelaxSetter
-
+from dorefa import get_dorefa, ternarize, get_hwgq, Schdule_Relax, RelaxSetter
+from dorefa import get_warmbin_match as get_warmbin
+#from dorefa import get_warmbin
 """
 This is a tensorpack script for the ImageNet results in paper:
 DoReFa-Net: Training Low Bitwidth Convolutional Neural Networks with Low Bitwidth Gradients
@@ -157,13 +159,14 @@ def get_config():
     return TrainConfig(
         dataflow=data_train,
         callbacks=[
-            ModelSaver(),
+            ModelSaver(max_to_keep=2),
             ScheduledHyperParamSetter(
                 'learning_rate', [(60, 4e-5), (75, 8e-6)]),
             InferenceRunner(data_test,
                             [ClassificationError('wrong-top1', 'val-error-top1'),
                              ClassificationError('wrong-top5', 'val-error-top5')]),
-            RelaxSetter(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), 1.0, 100.0, 'expo'),
+            RelaxSetter(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), '/home/jovyan/c_coefficient.mat', '/home/jovyan/c_coefficient.mat', 'from_file'),
+            #RelaxSetter(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), 1., 1000., 'expo'),
             MergeAllSummaries(),
         ],
         model=Model(),
