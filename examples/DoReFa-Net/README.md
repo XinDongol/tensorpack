@@ -13,11 +13,11 @@ Alternative link to this page: [http://dorefa.net](http://dorefa.net)
 This is a good set of baselines for research in model quantization.
 These quantization techniques, when applied on AlexNet, achieves the following ImageNet performance in this implementation:
 
-| Model                              | Bit Width <br/> (weights, activations, gradients) | Top 1 Validation Error <sup>[1](#ft1)</sup>                                      |
-|:----------------------------------:|:-------------------------------------------------:|:--------------------------------------------------------------------------------:|
-| Full Precision<sup>[2](#ft2)</sup> | 32,32,32                                          | 40.3%                                                                            |
-| TTQ                                | t,32,32                                           | 42.0%                                                                            |
-| BWN                                | 1,32,32                                           | 44.3% [:arrow_down:](http://models.tensorpack.com/DoReFa-Net/AlexNet-1,32,32.npz) |
+| Model                              | Bit Width <br/> (weights, activations, gradients) | Top 1 Validation Error <sup>[1](#ft1)</sup>                                      |Lego-Net|
+|:----------------------------------:|:-------------------------------------------------:|:--------------------------------------------------------------------------------:|:-----:|
+| Full Precision<sup>[2](#ft2)</sup> | 32,32,32                                          | 40.3%                           |
+| TTQ                                | t,32,32                                           | 42.0%                           |
+| BWN                                | 1,32,32                                           | 44.3% [:arrow_down:](http://models.tensorpack.com/DoReFa-Net/AlexNet-1,32,32.npz) | 37.9%
 | BNN                                | 1,1,32                                            | 51.5% [:arrow_down:](http://models.tensorpack.com/DoReFa-Net/AlexNet-1,1,32.npz) |
 | DoReFa                             | 8,8,8                                             | 42.0% [:arrow_down:](http://models.tensorpack.com/DoReFa-Net/AlexNet-8,8,8.npz)  |
 | DoReFa                             | 1,2,32                                            | 46.6%                                                                            |
