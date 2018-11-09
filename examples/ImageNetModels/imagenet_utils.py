@@ -174,7 +174,7 @@ def get_imagenet_dataflow(
     isTrain = name == 'train'
     if parallel is None:
         #parallel = min(40, multiprocessing.cpu_count() - 4)  # assuming hyperthreading
-        parallel = multiprocessing.cpu_count() - 2
+        parallel = multiprocessing.cpu_count() - 4
     if isTrain:
         #ds = dataset.ILSVRC12(datadir, name, shuffle=True)
         '''
@@ -198,7 +198,7 @@ def get_imagenet_dataflow(
         if parallel < 16:
             logger.warn("DataFlow may become the bottleneck when too few processes are used.")
         #ds = PrefetchDataZMQ(ds, parallel)
-        ds = MultiProcessPrefetchData(ds , 50000, parallel)
+        ds = MultiProcessPrefetchData(ds , 70000, parallel)
         ds = BatchData(ds, batch_size, remainder=False)
     else:
         '''

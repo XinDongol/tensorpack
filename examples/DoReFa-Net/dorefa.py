@@ -177,6 +177,20 @@ def get_warmbin(bitW, bitA, bitG):
     def fw(x, relax):
         if bitW == 32:
             return x
+        
+        if bitW == 1: #BWN
+            def sign_like(x, x_scale):
+                delta = 2.
+                y_scale = (0.5*delta)/tf.tanh(x_scale*0.5*delta)
+                return move_scaled_tanh(x, x_scale, y_scale, delta, 0, 0)
+            E = tf.stop_gradient(tf.reduce_mean(tf.abs(x)))
+
+            @tf.custom_gradient
+            def _sign(x):
+                return sign_like(x / E, relax) * E, lambda dy: dy
+
+            return _sign(x)
+            
 
         x = tf.tanh(x)
         x = x / tf.reduce_max(tf.abs(x)) * 0.5 + 0.5
@@ -223,13 +237,16 @@ def get_warmbin_match(bitW, bitA, bitG):
         return y 
 
 
-    def quantize(x, k, x_scale):
-
+    def quantize(x, k, x_scale, x_scale_back=10.):
+    
+        x_scale_back = tf.minimum(x_scale, tf.constant(10.0))
         delta = float(1./(2**k-1.))
         y_scale = (0.5*delta)/tf.tanh(x_scale*0.5*delta)
+        y_scale_back = (0.5*delta)/tf.tanh(x_scale_back*0.5*delta)
         #print(delta,minv,maxv)
         def _quantize(x):
-            return tanh_appro(x, x_scale, y_scale, k, delta)
+            return tanh_appro(x, x_scale_back, y_scale_back, k, delta) + \
+                    tf.stop_gradient(tanh_appro(x, x_scale, y_scale, k, delta) - tanh_appro(x, x_scale_back, y_scale_back, k, delta))
 
         return _quantize(x)
 
