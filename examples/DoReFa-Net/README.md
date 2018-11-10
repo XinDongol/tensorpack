@@ -17,7 +17,7 @@ These quantization techniques, when applied on AlexNet, achieves the following I
 |:----------------------------------:|:-------------------------------------------------:|:--------------------------------------------------------------------------------:|:-----:|
 | Full Precision<sup>[2](#ft2)</sup> | 32,32,32                                          | 40.3%                           |
 | TTQ                                | t,32,32                                           | 42.0%                           |
-| BWN                                | 1,32,32                                           | 44.3% [:arrow_down:](http://models.tensorpack.com/DoReFa-Net/AlexNet-1,32,32.npz) | 43.16%
+| BWN                                | 1,32,32                                           | 44.3% [:arrow_down:](http://models.tensorpack.com/DoReFa-Net/AlexNet-1,32,32.npz) | 42.82%
 | BNN                                | 1,1,32                                            | 51.5% [:arrow_down:](http://models.tensorpack.com/DoReFa-Net/AlexNet-1,1,32.npz) |
 | DoReFa                             | 8,8,8                                             | 42.0% [:arrow_down:](http://models.tensorpack.com/DoReFa-Net/AlexNet-8,8,8.npz)  |
 | DoReFa                             | 1,2,32                                            | 46.6%                                                                            |
