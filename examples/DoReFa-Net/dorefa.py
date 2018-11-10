@@ -250,20 +250,20 @@ def get_warmbin_match(bitW, bitA, bitG):
 
         return _quantize(x)
 
-    def fw(x, relax):
+    def fw(x, relax, relax_back):
         if bitW == 32:
             return x
 
         x = tf.tanh(x)
         x = x / tf.reduce_max(tf.abs(x)) * 0.5 + 0.5
-        return 2 * quantize(x, bitW, relax) - 1
+        return 2 * quantize(x, bitW, relax, relax_back) - 1
 
-    def fa(x, relax):
+    def fa(x, relax, relax_back):
         # relax is just for API consistance
         if bitA == 32:
             return x
 
-        return quantize(x, bitA, relax)
+        return quantize(x, bitA, relax, relax_back)
 
     def fg(x):
         if bitG == 32:
@@ -317,6 +317,15 @@ class RelaxSetter(Callback):
         self.relax_schduler = Schdule_Relax(start_iter, end_iter, start_value, end_value, mode)
     def _setup_graph(self):
         self._relax = [k for k in tf.global_variables() if k.name == 'relax_para:0'][0]
+    def _trigger_step(self):
+        self._relax.load(self.relax_schduler.step())
+        
+class RelaxSetterBack(Callback):
+    def __init__(self, start_iter, end_iter, start_value, end_value, mode='linear'):
+        assert mode in ['linear','expo', 'sqrt', 'from_file']
+        self.relax_schduler = Schdule_Relax(start_iter, end_iter, start_value, end_value, mode)
+    def _setup_graph(self):
+        self._relax = [k for k in tf.global_variables() if k.name == 'relax_para_back:0'][0]
     def _trigger_step(self):
         self._relax.load(self.relax_schduler.step())
         

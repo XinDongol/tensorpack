@@ -21,9 +21,9 @@ from tensorpack.utils.gpu import get_num_gpu
 
 from imagenet_utils import (
     get_imagenet_dataflow, fbresnet_augmentor, ImageNetModel, eval_on_ILSVRC12)
-from dorefa import get_dorefa, ternarize, get_hwgq, Schdule_Relax, RelaxSetter
-#from dorefa import get_warmbin_match as get_warmbin
-from dorefa import get_warmbin
+from dorefa import get_dorefa, ternarize, get_hwgq, Schdule_Relax, RelaxSetter, RelaxSetterBack
+from dorefa import get_warmbin_match as get_warmbin
+#from dorefa import get_warmbin
 """
 This is a tensorpack script for the ImageNet results in paper:
 DoReFa-Net: Training Low Bitwidth Convolutional Neural Networks with Low Bitwidth Gradients
@@ -75,6 +75,7 @@ class Model(ImageNetModel):
             #fw, fa, fg = get_dorefa(BITW, BITA, BITG)
             fw, fa, fg = get_warmbin(BITW, BITA, BITG)
         relax = tf.get_variable('relax_para', initializer=1.0, trainable=False)
+        relax_back = tf.get_variable('relax_para_back', initializer=1.0, trainable=False)
         # monkey-patch tf.get_variable to apply fw
         def new_get_variable(v):
             name = v.op.name
@@ -83,15 +84,15 @@ class Model(ImageNetModel):
                 return v
             else:
                 logger.info("Quantizing weight {}".format(v.op.name))
-                return fw(v, relax)
+                return fw(v, relax, relax_back)
 
         def nonlin(x):
             if BITA == 32:
                 return tf.nn.relu(x)    # still use relu for 32bit cases
             return tf.clip_by_value(x, 0.0, 1.0)
 
-        def activate(x,relax):
-            return fa(nonlin(x), relax)
+        def activate(x,relax, relax_back):
+            return fa(nonlin(x), relax, relax_back)
         
         with remap_variables(new_get_variable), \
                 argscope([Conv2D, BatchNorm, MaxPooling], data_format='channels_first'), \
@@ -99,34 +100,34 @@ class Model(ImageNetModel):
                 argscope(Conv2D, use_bias=False):
             logits = (LinearWrap(image)
                       .Conv2D('conv0', 96, 12, strides=4, padding='VALID', use_bias=True)
-                      .apply(activate, relax= relax)
+                      .apply(activate, relax = relax, relax_back = relax_back)
                       .Conv2D('conv1', 256, 5, padding='SAME', split=2)
                       .apply(fg)
                       .BatchNorm('bn1')
                       .MaxPooling('pool1', 3, 2, padding='SAME')
-                      .apply(activate, relax= relax)
+                      .apply(activate, relax= relax, relax_back = relax_back)
 
                       .Conv2D('conv2', 384, 3)
                       .apply(fg)
                       .BatchNorm('bn2')
                       .MaxPooling('pool2', 3, 2, padding='SAME')
-                      .apply(activate, relax= relax)
+                      .apply(activate, relax= relax, relax_back = relax_back)
 
                       .Conv2D('conv3', 384, 3, split=2)
                       .apply(fg)
                       .BatchNorm('bn3')
-                      .apply(activate, relax= relax)
+                      .apply(activate, relax= relax, relax_back = relax_back)
 
                       .Conv2D('conv4', 256, 3, split=2)
                       .apply(fg)
                       .BatchNorm('bn4')
                       .MaxPooling('pool4', 3, 2, padding='VALID')
-                      .apply(activate, relax= relax)
+                      .apply(activate, relax= relax, relax_back = relax_back)
 
                       .FullyConnected('fc0', 4096)
                       .apply(fg)
                       .BatchNorm('bnfc0')
-                      .apply(activate, relax= relax)
+                      .apply(activate, relax= relax, relax_back = relax_back)
 
                       .FullyConnected('fc1', 4096, use_bias=False)
                       .apply(fg)
@@ -137,6 +138,7 @@ class Model(ImageNetModel):
         add_param_summary(('.*/W', ['histogram', 'rms']))
         tf.nn.softmax(logits, name='output')  # for prediction
         tf.summary.scalar('relax_para', relax)
+        tf.summary.scalar('relax_para_back', relax_back)
         return logits
 
     def optimizer(self):
@@ -166,6 +168,7 @@ def get_config():
                             [ClassificationError('wrong-top1', 'val-error-top1'),
                              ClassificationError('wrong-top5', 'val-error-top5')]),
             RelaxSetter(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), '/home/jovyan/c_coefficient.mat', '/home/jovyan/c_coefficient.mat', 'from_file'),
+            RelaxSetterBack(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), 1., 10., 'expo'),
             #RelaxSetter(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), 1., 1000., 'expo'),
             MergeAllSummaries(),
         ],
