@@ -1,3 +1,13 @@
+To Do List:
+1. Compare with [BinaryRelax](https://github.com/penhunt/binaryrelax)
+2. Optimal result of ResNet-18, ResNet-50
+3. Compare with BWN
+4. Compare with HWGQ
+5. Compare with DoReFa
+
+
+
+----------------------------------------------
 Official code and model for the paper:
 
 + [DoReFa-Net: Training Low Bitwidth Convolutional Neural Networks with Low Bitwidth Gradients](http://arxiv.org/abs/1606.06160).
@@ -14,9 +24,7 @@ This is a good set of baselines for research in model quantization.
 These quantization techniques, when applied on AlexNet, achieves the following ImageNet performance in this implementation:
 
 | Model   | Bit Width <br/> (weights, activations, gradients) | Top 1 Validation Error <sup>[1](#ft1)</sup>   |Lego-Net|
-
 |:-----------------:|:--------------------:|:----------:|:-----:|
-
 | Full Precision<sup>[2](#ft2)</sup> | 32,32,32                                          | 40.3%    |
 | TTQ                                | t,32,32                                           | 42.0%    |
 | BWN                                | 1,32,32                                           | 44.3%  | 42.82%
@@ -26,10 +34,4 @@ These quantization techniques, when applied on AlexNet, achieves the following I
 | DoReFa                             | 1,2,6                                             | 46.8%   |
 | DoReFa                             | 1,2,4                                             | 54.0%    |
 
- <a id="ft1">1</a>: These numbers were obtained by training on 8 GPUs with a total batch size of 256 (otherwise the performance may become slightly different).
-The DoReFa-Net models reach slightly better performance than our paper, due to
-more sophisticated augmentations.
-
- <a id="ft2">2</a>: Not directly comparable with the original AlexNet. Check out
- [../ImageNetModels](../ImageNetModels) for a more faithful implementation of the original AlexNet.
 
