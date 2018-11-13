@@ -22,8 +22,8 @@ from tensorpack.utils.gpu import get_num_gpu
 from imagenet_utils import (
     get_imagenet_dataflow, fbresnet_augmentor, ImageNetModel, eval_on_ILSVRC12)
 from dorefa import get_dorefa, ternarize, get_hwgq, Schdule_Relax, RelaxSetter
-#from dorefa import get_warmbin_match as get_warmbin
-from dorefa import get_warmbin
+from dorefa import get_warmbin_clip as get_warmbin
+#from dorefa import get_warmbin
 """
 This is a tensorpack script for the ImageNet results in paper:
 DoReFa-Net: Training Low Bitwidth Convolutional Neural Networks with Low Bitwidth Gradients

@@ -298,7 +298,7 @@ def get_warmbin_clip(bitW, bitA, bitG):
         #y = move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (0.5)*delta)
         return y 
 
-    def quantize(x, k, x_scale):
+    def quantize(x, k, x_scale, x_scale_back):
 
         delta = float(1./(2**k-1.))
         y_scale = (0.5*delta)/tf.tanh(x_scale*0.5*delta)
@@ -307,31 +307,32 @@ def get_warmbin_clip(bitW, bitA, bitG):
         @tf.custom_gradient
         def _quantize(x):
             grad_y = 0
+            y_scale_back = (0.5*delta)/tf.tanh(x_scale_back*0.5*delta)
             for i in range(1,2**k):
-                grad_y += (y_scale*x_scale*(1-tf.tanh(x_scale*(x+(-i+0.5)*delta))**2)) \
+                grad_y += (y_scale_back*x_scale_back*(1-tf.tanh(x_scale_back*(x+(-i+0.5)*delta))**2)) \
                                 * tf.to_float((x+(-i+0.5)*delta)>=-0.5*delta)\
                                 * tf.to_float((x+(-i+0.5)*delta)<0.5*delta)
                     #return dy * (tf.clip_by_value(grad_y, -100, 1))
             def deriv(dy):
-                return dy * tf.clip_by_value(grad_y,-100,2)
+                return dy * tf.clip_by_value(grad_y,-100,1.5)
             return tanh_appro(x, x_scale, y_scale, k, delta), deriv
 
         return _quantize(x)
 
-    def fw(x, relax):
+    def fw(x, relax, relax_back):
         if bitW == 32:
             return x
 
         x = tf.tanh(x)
         x = x / tf.reduce_max(tf.abs(x)) * 0.5 + 0.5
-        return 2 * quantize(x, bitW, relax) - 1
+        return 2 * quantize(x, bitW, relax, relax_back) - 1
 
-    def fa(x, relax):
+    def fa(x, relax, relax_back):
         # relax is just for API consistance
         if bitA == 32:
             return x
 
-        return quantize(x, bitA, relax)
+        return quantize(x, bitA, relax, relax_back)
 
     def fg(x):
         if bitG == 32:

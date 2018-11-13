@@ -22,7 +22,7 @@ from tensorpack.utils.gpu import get_num_gpu
 from imagenet_utils import (
     get_imagenet_dataflow, fbresnet_augmentor, ImageNetModel, eval_on_ILSVRC12)
 from dorefa import get_dorefa, ternarize, get_hwgq, Schdule_Relax, RelaxSetter, RelaxSetterBack
-from dorefa import get_warmbin_match as get_warmbin
+from dorefa import get_warmbin_clip as get_warmbin
 #from dorefa import get_warmbin
 """
 This is a tensorpack script for the ImageNet results in paper:
@@ -168,7 +168,7 @@ def get_config():
                             [ClassificationError('wrong-top1', 'val-error-top1'),
                              ClassificationError('wrong-top5', 'val-error-top5')]),
             RelaxSetter(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), '/home/jovyan/c_coefficient.mat', '/home/jovyan/c_coefficient.mat', 'from_file'),
-            RelaxSetterBack(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), 1., 10., 'expo'),
+            RelaxSetterBack(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), 1., 20., 'expo'),
             #RelaxSetter(0, args.epoches*(1281167 // TOTAL_BATCH_SIZE), 1., 1000., 'expo'),
             MergeAllSummaries(),
         ],
