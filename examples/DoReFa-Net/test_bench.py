@@ -250,63 +250,64 @@ plt.figure(figsize=(5,15))
 
 plt.subplot(311)
 
-fw,fa,_ = dorefa.get_warmbin(1, 2, 32)
-x = tf.range(-2,2,0.01)
-y = fw(x, tf.constant(5.0))
+fw,fa,_ = dorefa.get_warmbin_clip(2, 2, 32)
+x = tf.range(0,1,0.01)
+y = fa(x, tf.constant(5.0))
 plt.plot(sess.run(x),sess.run(y),label='1-bit-5', alpha=0.5)
 
 
-y = fw(x, 10)
+y = fa(x, 10)
 plt.plot(sess.run(x),sess.run(y),label='1-bit-10', alpha=0.5)
 
 
-y = fw(x, 1)
+y = fa(x, 1)
 plt.plot(sess.run(x),sess.run(y),label='1-bit-1', alpha=0.5)
 
 
-y = fw(x, 20)
+y = fa(x, 20)
 plt.plot(sess.run(x),sess.run(y),label='1-bit-20', alpha=0.5)
 
-y = tf.sign(x)
-plt.plot(sess.run(x),sess.run(y),label='sign', alpha=0.9)
+fw,fa,_ = dorefa.get_dorefa(2, 2, 32)
+y = fa(x,0)
+plt.plot(sess.run(x),sess.run(y),label='dorefa', alpha=0.9)
 plt.legend()
 
 plt.subplot(312)
 
-
-y = fw(x, 5)
+fw,fa,_ = dorefa.get_warmbin_clip(2, 2, 32)
+y = fa(x, 5)
 plt.plot(sess.run(x),np.transpose(sess.run(tf.gradients(y, x))),label='1-bit-5', alpha=0.5)
 
-y = fw(x, 10)
+y = fa(x, 10)
 plt.plot(sess.run(x),np.transpose(sess.run(tf.gradients(y, x))),label='1-bit-10', alpha=0.5)
 
-y = fw(x, 1)
+y = fa(x, 1)
 plt.plot(sess.run(x),np.transpose(sess.run(tf.gradients(y, x))),label='1-bit-1', alpha=0.5)
 
-y = fw(x, 20)
+y = fa(x, 20)
 plt.plot(sess.run(x),np.transpose(sess.run(tf.gradients(y, x))),label='1-bit-20', alpha=0.5)
 
-y = fw(x, 50)
-plt.plot(sess.run(x),np.transpose(sess.run(tf.gradients(y, x))),label='1-bit-50', alpha=0.5)
+y = fa(x, 50)
+#plt.plot(sess.run(x),np.transpose(sess.run(tf.gradients(y, x))),label='1-bit-50', alpha=0.5)
 
 plt.legend()
 
 plt.subplot(313)
 
-fw,fa,_ = dorefa.get_dorefa(1, 2, 32)
+fw,fa,_ = dorefa.get_dorefa(2, 2, 32)
 
 plt.plot(sess.run(x),np.transpose(sess.run(tf.gradients(y, x))),label='1-bit-5', alpha=0.5)
 
-y = fw(x, 10)
+y = fa(x, 10)
 plt.plot(sess.run(x),np.transpose(sess.run(tf.gradients(y, x))),label='1-bit-10', alpha=0.5)
 
-y = fw(x, 1)
+y = fa(x, 1)
 plt.plot(sess.run(x),np.transpose(sess.run(tf.gradients(y, x))),label='1-bit-1', alpha=0.5)
 
-y = fw(x, 20)
+y = fa(x, 20)
 plt.plot(sess.run(x),np.transpose(sess.run(tf.gradients(y, x))),label='1-bit-20', alpha=0.5)
 
-y = fw(x, 50)
+y = fa(x, 50)
 plt.plot(sess.run(x),np.transpose(sess.run(tf.gradients(y, x))),label='1-bit-50', alpha=0.5)
 
 
@@ -314,4 +315,4 @@ plt.plot(sess.run(x),np.transpose(sess.run(tf.gradients(y, x))),label='1-bit-50'
 plt.legend()
 
 
-plt.savefig('./test_figs/test_backward_forward_1bit.pdf')
+plt.savefig('./test_figs/test_backward_forward_clipgrad.pdf')

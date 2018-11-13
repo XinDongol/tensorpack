@@ -273,6 +273,74 @@ def get_warmbin_match(bitW, bitA, bitG):
     return fw, fa, fg
 
 
+@graph_memoized
+def get_warmbin_clip(bitW, bitA, bitG):
+    '''
+    use the same function for forward and backward
+    '''
+    def scale_tanh(x, x_scale, y_scale):
+        # scale tanh alone x-axis and y-axis
+        return (y_scale*tf.tanh(x_scale*x))
+
+    def move_scaled_tanh(x, x_scale, y_scale, x_range, x_move, y_move):
+        # move the scaled tanh along x-axis and y-axis
+        return tf.clip_by_value(scale_tanh(x+x_move, x_scale, y_scale ),-0.5*x_range,0.5*x_range)+y_move
+        #* \
+        #tf.to_float((x+x_move)>=-0.5*x_range) *\
+        #tf.to_float((x+x_move)<0.5*x_range)
+
+    def tanh_appro(x, x_scale, y_scale, k, delta):
+        y=0
+        
+        for i in range(1,2**k):
+            y += move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (0.5)*delta)
+        #i=1
+        #y = move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (0.5)*delta)
+        return y 
+
+    def quantize(x, k, x_scale):
+
+        delta = float(1./(2**k-1.))
+        y_scale = (0.5*delta)/tf.tanh(x_scale*0.5*delta)
+                
+        #print(delta,minv,maxv)
+        @tf.custom_gradient
+        def _quantize(x):
+            grad_y = 0
+            for i in range(1,2**k):
+                grad_y += (y_scale*x_scale*(1-tf.tanh(x_scale*(x+(-i+0.5)*delta))**2)) \
+                                * tf.to_float((x+(-i+0.5)*delta)>=-0.5*delta)\
+                                * tf.to_float((x+(-i+0.5)*delta)<0.5*delta)
+                    #return dy * (tf.clip_by_value(grad_y, -100, 1))
+            def deriv(dy):
+                return dy * tf.clip_by_value(grad_y,-100,2)
+            return tanh_appro(x, x_scale, y_scale, k, delta), deriv
+
+        return _quantize(x)
+
+    def fw(x, relax):
+        if bitW == 32:
+            return x
+
+        x = tf.tanh(x)
+        x = x / tf.reduce_max(tf.abs(x)) * 0.5 + 0.5
+        return 2 * quantize(x, bitW, relax) - 1
+
+    def fa(x, relax):
+        # relax is just for API consistance
+        if bitA == 32:
+            return x
+
+        return quantize(x, bitA, relax)
+
+    def fg(x):
+        if bitG == 32:
+            return x
+        else:
+            raise NameError('Don not support gradients !')
+    return fw, fa, fg
+
+
 
 class Schdule_Relax():
     def __init__(self, start_iter, end_iter, start_value, end_value, mode):
