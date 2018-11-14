@@ -71,10 +71,70 @@ def get_dorefa(bitW, bitA, bitG):
         return _identity(x)
     return fw, fa, fg
 
-@graph_memoized
-def get_hwgq(bitA):
 
+@graph_memoized
+def get_hwgq_bwn(bitA):
+
+    def quantize_act(x, k):
+        # in order of 
+        assert k in [2,3,4,5], 'Does not support %d bits' % k
+        code_book={
+        '2':[0.5380, 0., 0.5380*(2**2-1)],
+        '3':[0.3218, 0., 0.3218*(2**3-1)],
+        '4':[0.1813, 0., 0.1813*(2**4-1)],
+        '5':[0.1029, 0., 0.1029*(2**5-1)]
+        }
+        delta, minv, maxv = code_book[str(k)]
+        #print(delta,minv,maxv)
+        @tf.custom_gradient
+        def _quantize(x):
+            return tf.to_float(x>0.)*(tf.clip_by_value((tf.floor(x/delta + 0.5)+tf.to_float(x<0.5*delta))*delta, minv, maxv)), lambda dy: dy*tf.to_float(x>minv)*tf.to_float(x<maxv)
+
+        return _quantize(x)   
+    
+    
+    def fw(x, relax):
+ 
+        if bitW == 1: #BWN
+            E = tf.stop_gradient(tf.reduce_mean(tf.abs(x)))
+
+            @tf.custom_gradient
+            def _sign(x):
+                return tf.where(tf.equal(x, 0), tf.ones_like(x), tf.sign(x / E)) * E, lambda dy: dy
+
+            return _sign(x)
+            
+        else:
+            raise NameError('You should use bitW=1 for HWGQ !')
+
+
+    def fa(x, relax):
+        if bitA != 2:
+            raise NameError('You should use bitA=2 for HWGQ !')
+            
+        return quantize_act(x, bitA)
+    def fg(x):
+        if bitG == 32:
+            return x
+        else:
+            raise NameError('Don not support gradients !')
+    return fw, fa, fg
+
+
+@graph_memoized
+def get_hwgq_dorefa(bitA):
+    
     def quantize(x, k):
+        n = float(2 ** k - 1)
+
+        @tf.custom_gradient
+        def _quantize(x):
+            return tf.round(x * n) / n, lambda dy: dy
+
+        return _quantize(x)
+    
+    
+    def quantize_act(x, k):
         # in order of 
         assert k in [2,3,4,5], 'Does not support %d bits' % k
         code_book={
@@ -90,15 +150,28 @@ def get_hwgq(bitA):
             return tf.to_float(x>0.)*(tf.clip_by_value((tf.floor(x/delta + 0.5)+tf.to_float(x<0.5*delta))*delta, minv, maxv)), lambda dy: dy*tf.to_float(x>minv)*tf.to_float(x<maxv)
 
         return _quantize(x)
+    
+    def fw(x, relax):
+ 
+        if bitW == 1: #BWN
+            x = tf.tanh(x)
+            x = x / tf.reduce_max(tf.abs(x)) * 0.5 + 0.5
+            return 2 * quantize(x, bitW) - 1
+        else:
+            raise NameError('You should use bitW=1 for HWGQ !')
 
-    def fa(x):
-        if bitA == 32:
+
+    def fa(x, relax):
+        if bitA != 2:
+            raise NameError('You should use bitA=2 for HWGQ !')
+        return quantize_act(x, bitA)
+    
+    def fg(x):
+        if bitG == 32:
             return x
-
-        return quantize(x, bitA)
-    return fa
-
-
+        else:
+            raise NameError('Don not support gradients !')
+    return fw, fa, fg
 
 
 
