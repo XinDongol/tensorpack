@@ -73,11 +73,11 @@ def get_dorefa(bitW, bitA, bitG):
 
 
 @graph_memoized
-def get_hwgq_bwn(bitA):
+def get_hwgq_bwn(bitW, bitA, bitG):
 
     def quantize_act(x, k):
         # in order of 
-        assert k in [2,3,4,5], 'Does not support %d bits' % k
+        assert k in [2], 'Does not support %d bits' % k
         code_book={
         '2':[0.5380, 0., 0.5380*(2**2-1)],
         '3':[0.3218, 0., 0.3218*(2**3-1)],
@@ -122,7 +122,81 @@ def get_hwgq_bwn(bitA):
 
 
 @graph_memoized
-def get_hwgq_dorefa(bitA):
+def get_hwgq_bwn_warm(bitW, bitA, bitG):
+    
+    def scale_tanh(x, x_scale, y_scale):
+        # scale tanh alone x-axis and y-axis
+        return (y_scale*tf.tanh(x_scale*x))
+
+    def move_scaled_tanh(x, x_scale, y_scale, x_range, x_move, y_move):
+        # move the scaled tanh along x-axis and y-axis
+        return tf.clip_by_value(scale_tanh(x+x_move, x_scale, y_scale ),-0.5*x_range,0.5*x_range)+y_move
+
+    def tanh_appro(x, x_scale, y_scale, k, delta):
+        y_scale_first = 0.5*2*delta/tf.tanh(x_scale*0.5*2*delta)
+        y=  tf.clip_by_value(move_scaled_tanh(x, x_scale, y_scale_first, 2*delta, 0, 0),0,delta)
+        for i in range(1, 2**k-1):
+            y += move_scaled_tanh(x, x_scale, y_scale, delta, (-i-0.5)*delta, 0.5*delta)
+        return y 
+
+
+    def quantize_act(x, k, x_scale):
+        # in order of 
+        assert k in [2,3,4,5], 'Does not support %d bits' % k
+        code_book={
+        '2':[0.5380, 0., 0.5380*(2**2-1)],
+        '3':[0.3218, 0., 0.3218*(2**3-1)],
+        '4':[0.1813, 0., 0.1813*(2**4-1)],
+        '5':[0.1029, 0., 0.1029*(2**5-1)]
+        }
+        delta, minv, maxv = code_book[str(k)]
+        y_scale = 0.5*delta/tf.tanh(x_scale*0.5*delta)
+        #print(delta,minv,maxv)
+        @tf.custom_gradient
+        def _quantize(x):
+            return tf.clip_by_value(tanh_appro(x, x_scale, y_scale, k, delta),0,maxv)\
+            , lambda dy: dy*tf.to_float(x>minv)*tf.to_float(x<maxv)
+
+        return _quantize(x)
+
+    
+    
+    def fw(x, relax):
+ 
+        if bitW == 1: #BWN
+            def sign_like(x, x_scale):
+                delta = 2.
+                y_scale = (0.5*delta)/tf.tanh(x_scale*0.5*delta)
+                return move_scaled_tanh(x, x_scale, y_scale, delta, 0, 0)
+            E = tf.stop_gradient(tf.reduce_mean(tf.abs(x)))
+
+            @tf.custom_gradient
+            def _sign(x):
+                return sign_like(x / E, relax) * E, lambda dy: dy
+
+            return _sign(x)
+            
+        else:
+            raise NameError('You should use bitW=1 for HWGQ !')
+
+
+    def fa(x, relax):
+        if bitA != 2:
+            raise NameError('You should use bitA=2 for HWGQ !')
+            
+        return quantize_act(x, bitA, relax)
+    def fg(x):
+        if bitG == 32:
+            return x
+        else:
+            raise NameError('Don not support gradients !')
+    return fw, fa, fg
+
+
+
+
+@graph_memoized
+def get_hwgq_dorefa(bitW, bitA, bitG):
     
     def quantize(x, k):
         n = float(2 ** k - 1)
@@ -178,7 +252,7 @@ def get_hwgq_dorefa(bitA):
 @graph_memoized
 def get_warmbin(bitW, bitA, bitG):
     '''
-    Thi is for hwgq like
+    This is for hwgq like
     def scale_tanh(x, x_scale, y_scale):
         # scale tanh alone x-axis and y-axis
         return (y_scale*tf.tanh(x_scale*x))
@@ -520,6 +594,7 @@ if __name__ == '__main__':
     )
     sess = tf.Session(config=config)
     
+    #-----------------------------------------------#
     def scale_tanh(x, x_scale, y_scale):
         # scale tanh alone x-axis and y-axis
         return (y_scale*tf.tanh(x_scale*x))
@@ -527,42 +602,90 @@ if __name__ == '__main__':
     def move_scaled_tanh(x, x_scale, y_scale, x_range, x_move, y_move):
         # move the scaled tanh along x-axis and y-axis
         return tf.clip_by_value(scale_tanh(x+x_move, x_scale, y_scale ),-0.5*x_range,0.5*x_range)+y_move
-        #* \
-        #tf.to_float((x+x_move)>=-0.5*x_range) *\
-        #tf.to_float((x+x_move)<0.5*x_range)
 
     def tanh_appro(x, x_scale, y_scale, k, delta):
-        y=0
-        
-        for i in range(1,2**k):
-            y += move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (0.5)*delta)
-        #i=1
-        #y = move_scaled_tanh(x, x_scale, y_scale, delta, (-i+0.5)*delta, (0.5)*delta)
+        y_scale_first = 0.5*2*delta/tf.tanh(x_scale*0.5*2*delta)
+        y=  tf.clip_by_value(move_scaled_tanh(x, x_scale, y_scale_first, 2*delta, 0, 0),0,delta)
+        for i in range(1, 2**k-1):
+            y += move_scaled_tanh(x, x_scale, y_scale, delta, (-i-0.5)*delta, 0.5*delta)
         return y 
 
 
     def quantize(x, k, x_scale):
-
-        delta = float(1./(2**k-1.))
-        y_scale = (0.5*delta)/tf.tanh(x_scale*0.5*delta)
+        # in order of 
+        assert k in [2,3,4,5], 'Does not support %d bits' % k
+        code_book={
+        '2':[0.5380, 0., 0.5380*(2**2-1)],
+        '3':[0.3218, 0., 0.3218*(2**3-1)],
+        '4':[0.1813, 0., 0.1813*(2**4-1)],
+        '5':[0.1029, 0., 0.1029*(2**5-1)]
+        }
+        delta, minv, maxv = code_book[str(k)]
+        y_scale = 0.5*delta/tf.tanh(x_scale*0.5*delta)
         #print(delta,minv,maxv)
         @tf.custom_gradient
         def _quantize(x):
-            return tanh_appro(x, x_scale, y_scale, k, delta), lambda dy: dy
+            return tf.clip_by_value(tanh_appro(x, x_scale, y_scale, k, delta),0,maxv)\
+            , lambda dy: dy*tf.to_float(x>minv)*tf.to_float(x<maxv)
 
         return _quantize(x)
+
+    def quantize_act(x, k, placeholder):
+        # in order of 
+        assert k in [2], 'Does not support %d bits' % k
+        code_book={
+        '2':[0.5380, 0., 0.5380*(2**2-1)],
+        '3':[0.3218, 0., 0.3218*(2**3-1)],
+        '4':[0.1813, 0., 0.1813*(2**4-1)],
+        '5':[0.1029, 0., 0.1029*(2**5-1)]
+        }
+        delta, minv, maxv = code_book[str(k)]
+        #print(delta,minv,maxv)
+        @tf.custom_gradient
+        def _quantize(x):
+            return tf.to_float(x>0.)*(tf.clip_by_value((tf.floor(x/delta + 0.5)+tf.to_float(x<0.5*delta))*delta, minv, maxv)), lambda dy: dy*tf.to_float(x>minv)*tf.to_float(x<maxv)
+
+        return _quantize(x)   
     
-    x = tf.range(0,1,0.01)
+    
+    plt.figure(figsize=(8,15))
+
+    plt.subplot(211)
+
+    x = tf.range(-0.1,2.5,0.01)
     fa = quantize
     bit = 2
+    
     plt.plot(sess.run(x),sess.run(fa(x,bit,500)),label='2-bit-500', alpha=0.5)
     plt.plot(sess.run(x),sess.run(fa(x,bit,50)),label='2-bit-50', alpha=0.5)
     plt.plot(sess.run(x),sess.run(fa(x,bit,5)),label='2-bit-5', alpha=0.5)
     plt.plot(sess.run(x),sess.run(fa(x,bit,2)),label='2-bit-2', alpha=0.5)
     plt.plot(sess.run(x),sess.run(fa(x,bit,10)),label='2-bit-10', alpha=0.5)
     plt.plot(sess.run(x),sess.run(fa(x,bit,15)),label='2-bit-15', alpha=0.5)
+    plt.plot(sess.run(x),sess.run(x),label='x', alpha=0.5)
     #plt.plot(sess.run(x),sess.run(fa(x,3,500)),label='3-bit', alpha=0.5)
     #plt.plot(sess.run(x),sess.run(fa(x,4,500)),label='4-bit', alpha=0.5)
-    plt.title('Forward')
+    #plt.title('Forward')
     plt.legend()
-    plt.savefig('./test_figs/test_warmbin.pdf')
+    
+    plt.subplot(212)
+
+    x = tf.range(-0.1,2.5,0.01)
+    fa = quantize_act
+    bit = 2
+    
+    plt.plot(sess.run(x),sess.run(fa(x,bit,500)),label='2-bit-500', alpha=0.5)
+    plt.plot(sess.run(x),sess.run(fa(x,bit,50)),label='2-bit-50', alpha=0.5)
+    plt.plot(sess.run(x),sess.run(fa(x,bit,5)),label='2-bit-5', alpha=0.5)
+    plt.plot(sess.run(x),sess.run(fa(x,bit,2)),label='2-bit-2', alpha=0.5)
+    plt.plot(sess.run(x),sess.run(fa(x,bit,10)),label='2-bit-10', alpha=0.5)
+    plt.plot(sess.run(x),sess.run(fa(x,bit,15)),label='2-bit-15', alpha=0.5)
+    plt.plot(sess.run(x),sess.run(x),label='x', alpha=0.5)
+    #plt.plot(sess.run(x),sess.run(fa(x,3,500)),label='3-bit', alpha=0.5)
+    #plt.plot(sess.run(x),sess.run(fa(x,4,500)),label='4-bit', alpha=0.5)
+    #plt.title('Forward')
+    plt.legend()
+    
+    
+    
+    plt.savefig('./test_figs/test_hwgq_new.pdf')
